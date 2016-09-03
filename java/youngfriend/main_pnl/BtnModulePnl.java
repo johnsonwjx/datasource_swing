@@ -7,6 +7,7 @@ package youngfriend.main_pnl;
 
 import com.google.gson.JsonObject;
 import youngfriend.main_pnl.deleagte.InparamTableDelegateButtonAbs;
+import youngfriend.utils.ModuleType;
 
 import java.util.Map;
 
@@ -14,6 +15,10 @@ import java.util.Map;
  * @author xiong
  */
 public class BtnModulePnl extends AbstractMainPnl {
+    @Override
+    protected ModuleType getModuleType() {
+        return ModuleType.BUTTON;
+    }
 
     public void clear() {
         super.clear();

@@ -54,10 +54,13 @@ public abstract class InparamTableDelegateCommonAbs extends InparamTableDelegate
     public static final int INDEX_INPARAM = 3;
     public static final int INDEX_OPER = 4;
     public static final int INDEX_INPARAM_NULL_IGNORE = 5;
+    //查询时
     public static final int INDEX_FIXED_VALUE = 6;
+    //保存时
+    public static final int INDEX_FIXED_VALUE_SAVE = 7;
 
-    public static final int INDEX_GROUPBY = 7;
-    public static final int INDEX_SUM = 8;
+    public static final int INDEX_GROUPBY = 8;
+    public static final int INDEX_SUM = 9;
 
 
     public InparamTableDelegateCommonAbs(JTable table) {
@@ -76,7 +79,7 @@ public abstract class InparamTableDelegateCommonAbs extends InparamTableDelegate
         initCheckHeader();
 
         Map<String, int[]> groupColumnMap = new LinkedHashMap();
-        groupColumnMap.put("入口参数", new int[]{INDEX_INPARAM, INDEX_INPARAM_NULL_IGNORE, INDEX_OPER});
+        groupColumnMap.put("入口参数", new int[]{INDEX_INPARAM, INDEX_INPARAM_NULL_IGNORE, INDEX_OPER, INDEX_FIXED_VALUE});
         if (!isUpdatePnl) {
             groupColumnMap.put("分类汇总", new int[]{INDEX_GROUPBY, INDEX_SUM});
         }
@@ -104,6 +107,8 @@ public abstract class InparamTableDelegateCommonAbs extends InparamTableDelegate
         cm.getColumn(INDEX_FIXED_VALUE).setMinWidth(130);
 
         cm.getColumn(INDEX_FIXED_VALUE).setCellEditor(new DefaultCellEditor(new JComboBox(FIXEDVALUES)));
+        cm.getColumn(INDEX_FIXED_VALUE_SAVE).setCellEditor(new DefaultCellEditor(new JComboBox(FIXEDVALUES)));
+
         cm.getColumn(INDEX_OPER).setCellEditor(new DefaultCellEditor(new JComboBox(OPERVALUES)));
         if (!isUpdatePnl) {
             cm.getColumn(INDEX_GROUPBY).setMaxWidth(100);
@@ -221,6 +226,7 @@ public abstract class InparamTableDelegateCommonAbs extends InparamTableDelegate
         appendField2StrBd4BooleanCol(groupfieldsStrBd, row, INDEX_GROUPBY, fieldName);
 
         addFieldValue2Json4BeanDtoCol(fixedvalueJsonObj, row, INDEX_FIXED_VALUE, fieldName);
+        addFieldValue2Json4BeanDtoCol(fixedvalueSaveJsonObj, row, INDEX_FIXED_VALUE_SAVE, fieldName);
 
         addFieldValue2Json4BeanDtoCol(sumfieldsJsonObj, row, INDEX_SUM, fieldName);
 
@@ -236,6 +242,7 @@ public abstract class InparamTableDelegateCommonAbs extends InparamTableDelegate
     StringBuilder groupfieldsStrBd = new StringBuilder();
     StringBuilder inparamNullIgnoreStrBd = new StringBuilder();
     JsonObject fixedvalueJsonObj = new JsonObject();
+    JsonObject fixedvalueSaveJsonObj = new JsonObject();
     JsonObject sumfieldsJsonObj = new JsonObject();
     JsonObject operatorsJsonObj = new JsonObject();
     JsonObject fieldsdescJsonObj = new JsonObject();
@@ -247,6 +254,7 @@ public abstract class InparamTableDelegateCommonAbs extends InparamTableDelegate
         groupfieldsStrBd.setLength(0);
         inparamNullIgnoreStrBd.setLength(0);
         fixedvalueJsonObj = new JsonObject();
+        fixedvalueSaveJsonObj = new JsonObject();
         sumfieldsJsonObj = new JsonObject();
         operatorsJsonObj = new JsonObject();
         fieldsdescJsonObj = new JsonObject();
@@ -270,6 +278,9 @@ public abstract class InparamTableDelegateCommonAbs extends InparamTableDelegate
         }
         if (!fixedvalueJsonObj.toString().equals("{}")) {
             jsonData.add("fixed_value", fixedvalueJsonObj);
+        }
+        if (!fixedvalueSaveJsonObj.toString().equals("{}")) {
+            jsonData.add("save_fixed_value", fixedvalueSaveJsonObj);
         }
         if (!sumfieldsJsonObj.toString().equals("{}")) {
             jsonData.add("sumfields", sumfieldsJsonObj);
@@ -329,6 +340,7 @@ public abstract class InparamTableDelegateCommonAbs extends InparamTableDelegate
 
     public void loadInTableDatas(JsonObject jsonData, Map<String, JsonObject> inParamFieldMap) {
         JsonObject fixedvalueJsonObj = PubUtil.getJsonObj(jsonData, "fixed_value", JsonObject.class);
+        JsonObject fixedvalueSaveJsonObj = PubUtil.getJsonObj(jsonData, "save_fixed_value", JsonObject.class);
         JsonObject sumfieldsJsonObj = PubUtil.getJsonObj(jsonData, "sumfields", JsonObject.class);
         JsonObject operatorsJsonObj = PubUtil.getJsonObj(jsonData, "operators", JsonObject.class);
         JsonObject fieldsdescJsonObj = PubUtil.getJsonObj(jsonData, "fields_desc", JsonObject.class);
@@ -342,6 +354,7 @@ public abstract class InparamTableDelegateCommonAbs extends InparamTableDelegate
             String fieldName = field.getValue(FIELD_NAME_PROPNAME);
 
             BeanDto fixedvalueJsonObj_dto = PubUtil.getDtoInJsonValue(FIXEDVALUES, "value", fixedvalueJsonObj, fieldName);
+            BeanDto fixedvalueSaveJsonObj_dto = PubUtil.getDtoInJsonValue(FIXEDVALUES, "value", fixedvalueSaveJsonObj, fieldName);
             BeanDto sumfield_dto = PubUtil.getDtoInJsonValue(SUMVALUES, "value", sumfieldsJsonObj, fieldName);
             BeanDto oper_dto = PubUtil.getDtoInJsonValue(OPERVALUES, "value", operatorsJsonObj, fieldName);
 
@@ -359,6 +372,7 @@ public abstract class InparamTableDelegateCommonAbs extends InparamTableDelegate
             table.setValueAt(inparam, i, INDEX_INPARAM);
             table.setValueAt(is_inparam_null_ignore, i, INDEX_INPARAM_NULL_IGNORE);
             table.setValueAt(fixedvalueJsonObj_dto, i, INDEX_FIXED_VALUE);
+            table.setValueAt(fixedvalueSaveJsonObj_dto, i, INDEX_FIXED_VALUE_SAVE);
             table.setValueAt(oper_dto, i, INDEX_OPER);
             table.setValueAt(groupfield, i, INDEX_GROUPBY);
             table.setValueAt(sumfield_dto, i, INDEX_SUM);

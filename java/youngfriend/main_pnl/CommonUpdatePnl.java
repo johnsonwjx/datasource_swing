@@ -13,6 +13,7 @@ import youngfriend.bean.ButtonCellEditor;
 import youngfriend.common.util.StringUtils;
 import youngfriend.main_pnl.deleagte.InparamTableDelegateAbs;
 import youngfriend.main_pnl.deleagte.InparamTableDelegateCommonAbs;
+import youngfriend.utils.ModuleType;
 import youngfriend.utils.PubUtil;
 
 import javax.swing.JTextField;
@@ -27,7 +28,10 @@ import java.util.Map;
  * @author xiong
  */
 public class CommonUpdatePnl extends AbstractMainPnl {
-
+    @Override
+    protected ModuleType getModuleType() {
+        return ModuleType.COMMON_UPDATE;
+    }
     public void clear() {
         super.clear();
         inparamTableDeletage.clear();
@@ -281,14 +285,14 @@ public class CommonUpdatePnl extends AbstractMainPnl {
 
                         },
                         new String [] {
-                                "字段", "显示名称", "不返回字段", "作为入口参数", "操作符", "为空时,保留条件", "默认固定值"
+                                "字段", "显示名称", "不返回字段", "作为入口参数", "操作符", "为空时,保留条件", "查询时,固定值", "保存时,固定值"
                         }
                 ) {
                         Class[] types = new Class [] {
-                                java.lang.Object.class, java.lang.String.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Object.class, java.lang.Boolean.class, java.lang.Object.class
+                                java.lang.Object.class, java.lang.String.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Object.class, java.lang.Boolean.class, java.lang.Object.class, java.lang.Object.class
                         };
                         boolean[] canEdit = new boolean [] {
-                                false, true, true, true, true, true, true
+                                false, true, true, true, true, true, true, true
                         };
 
                         public Class getColumnClass(int columnIndex) {

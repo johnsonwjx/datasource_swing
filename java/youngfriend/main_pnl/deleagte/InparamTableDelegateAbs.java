@@ -26,7 +26,7 @@ public abstract class InparamTableDelegateAbs {
     public static final String FIELD_TYPE_PROPNAME = "field_type";
     public static final String FIELD_LENGTH_PROPNAME = "field_length";
 
-    protected static int[] checkboxIndexs;
+    protected int[] checkboxIndexs;
 
     protected JTable table;
     //保存json对象

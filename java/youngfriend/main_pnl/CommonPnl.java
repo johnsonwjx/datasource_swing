@@ -13,6 +13,7 @@ import youngfriend.main_pnl.deleagte.BuildTreeDataDelegate;
 import youngfriend.main_pnl.deleagte.InparamTableDelegateCommonAbs;
 import youngfriend.main_pnl.deleagte.SortFieldDelegate;
 import youngfriend.main_pnl.deleagte.V6TypeDelegate;
+import youngfriend.utils.ModuleType;
 import youngfriend.utils.PubUtil;
 
 import javax.swing.JTextField;
@@ -23,7 +24,10 @@ import java.util.Map;
  * @author xiong
  */
 public class CommonPnl extends AbstractMainPnl {
-
+    @Override
+    protected ModuleType getModuleType() {
+        return ModuleType.COMMON;
+    }
 
     private BuildTreeDataDelegate buildTreeDataDelegate;
     private SortFieldDelegate sortFieldDelegate;
@@ -434,14 +438,14 @@ public class CommonPnl extends AbstractMainPnl {
 
                         },
                         new String [] {
-                                "字段", "显示名称", "不返回字段", "作为入口参数", "操作符", "为空时,保留条件", "默认固定值", "分类字段", "汇总函数"
+                                "字段", "显示名称", "不返回字段", "作为入口参数", "操作符", "为空时,保留条件", "查询时,固定值", "保存时,固定值", "分类字段", "汇总函数"
                         }
                 ) {
                         Class[] types = new Class [] {
-                                java.lang.Object.class, java.lang.String.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Object.class, java.lang.Boolean.class, java.lang.Object.class, java.lang.Boolean.class, java.lang.Object.class
+                                java.lang.Object.class, java.lang.String.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.Object.class, java.lang.Boolean.class, java.lang.Object.class, java.lang.Object.class, java.lang.Boolean.class, java.lang.Object.class
                         };
                         boolean[] canEdit = new boolean [] {
-                                false, true, true, true, true, true, true, true, true
+                                false, true, true, true, true, true, true, true, true, true
                         };
 
                         public Class getColumnClass(int columnIndex) {

@@ -291,7 +291,7 @@ public abstract class AbstractMainPnl extends JPanel {
                 }
                 //通用的 设置 表格
             } else {
-                lst = ServiceInvoker.getDataSource(servicename, !PubUtil.mainFrame.isVersion2(), ModuleType.SERVICE);
+                lst = ServiceInvoker.getDataSource(servicename, !PubUtil.mainFrame.isVersion2(), getModuleType());
             }
             if (lst != null && !lst.isEmpty()) {
                 for (BeanDto table : lst) {
@@ -338,4 +338,5 @@ public abstract class AbstractMainPnl extends JPanel {
     abstract void saveInparamLevel2Custom(JsonObject inparamLevel1);
 
 
+    protected  abstract  ModuleType getModuleType();
 }
