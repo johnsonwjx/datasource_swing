@@ -86,11 +86,13 @@ public abstract class InparamTableDelegateCommonAbs extends InparamTableDelegate
         Set<String> groupColumnTitles = groupColumnMap.keySet();
         for (String title : groupColumnTitles) {
             int[] indexArr = groupColumnMap.get(title);
-            ColumnGroup inputColumn = new ColumnGroup(title);
+            ColumnGroup columnGroup = new ColumnGroup(title);
             for (int i : indexArr) {
-                inputColumn.add(cm.getColumn(i));
+                columnGroup.add(cm.getColumn(i));
             }
+            groupableTableHeader.addColumnGroup(columnGroup);
         }
+
 
         cm.getColumn(INDEX_EXCEPT).setMinWidth(100);
         cm.getColumn(INDEX_EXCEPT).setMaxWidth(100);

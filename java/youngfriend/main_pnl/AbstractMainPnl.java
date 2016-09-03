@@ -38,7 +38,7 @@ import java.util.Set;
  * @author xiong
  */
 public abstract class AbstractMainPnl extends JPanel {
-
+    //TODO 抽出接口
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     //是否通用组件

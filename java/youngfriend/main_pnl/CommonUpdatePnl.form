@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <Form version="1.5" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+  <Properties>
+    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+      <Border info="org.netbeans.modules.form.compat2.border.LineBorderInfo">
+        <LineBorder/>
+      </Border>
+    </Property>
+  </Properties>
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
@@ -33,7 +40,7 @@
                   <Component id="table_combo" min="-2" pref="345" max="-2" attributes="0"/>
                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                   <Component id="readOnlyCb" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace pref="631" max="32767" attributes="0"/>
+                  <EmptySpace pref="629" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -251,11 +258,11 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="1131" max="32767" attributes="0"/>
+              <EmptySpace min="0" pref="1129" max="32767" attributes="0"/>
               <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
-                      <Component id="jScrollPane2" pref="1131" max="32767" attributes="0"/>
+                      <Component id="jScrollPane2" pref="1129" max="32767" attributes="0"/>
                       <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -263,11 +270,11 @@
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="280" max="32767" attributes="0"/>
+              <EmptySpace min="0" pref="278" max="32767" attributes="0"/>
               <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
-                      <Component id="jScrollPane2" pref="280" max="32767" attributes="0"/>
+                      <Component id="jScrollPane2" pref="278" max="32767" attributes="0"/>
                       <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
                   </Group>
               </Group>
