@@ -1,0 +1,46 @@
+{
+  "servicename": "interior3",
+  "inparam": [
+    {
+      "propertyDefine": "{}",
+      "name": "INTERIOR3_FPACCOUNT",
+      "label": "xx",
+      "v6dataprop": "",
+      "moduleid": "02e4cbd5cc3f461390d5d33754ea463b",
+      "inParamType": "definite",
+      "maxLevel": "20",
+      "maxLength": "64",
+      "rootName": "",
+      "codeField": "",
+      "nameFielde": "",
+      "codeInc": "",
+      "inParams": [
+        {
+          "name": "project_ygzbz",
+          "label": "Ӫ??????Ŀ??ʶ",
+          "defaultValue": ""
+        }
+      ]
+    }
+  ],
+  "tablename": "INTERIOR3_FPACCOUNT",
+  "fields": [
+    {
+      "field_name": "id",
+      "field_desc": "xx",
+      "field_type": "C",
+      "field_length": "32"
+    }
+  ],
+  "exceptivefields": "",
+  "hiddenfields": "",
+  "sortfields": "",
+  "groupfields": "corpcode,business_year,business_month",
+  "sumfields": {
+    "check_tax": "sum",
+    "check_sum_amount": "sum"
+  },
+  "queryServiceName": "",
+  "saveServiceName": "",
+  "deleteServiceName": ""
+}

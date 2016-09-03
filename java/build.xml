@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="datasourcetools" basedir="." default="all">
+    <!-- 设置项目属性 -->
+    <property name="work.dir" location="${user.home}/V6"/>
+
+    <property file="config.properties"></property>
+
+    <condition property="v6.root" value="${work.dir}">
+        <not>
+            <isset property="v6.root"/>
+        </not>
+    </condition>
+    <property name="src.dir" location="."/>
+    <property name="classes.dir" location="../classes"/>
+    <property name="lib.dir" location="../lib"/>
+    <property name="app.jar.dir" location="${v6.root}/output/tools/toolset/V6数据源组件工具(简单版)"/>
+    <property name="start_class" location="youngfriend.App"/>
+    <property name="rescources.dir" location="../resources"/>
+    <echo>v6.root: ${v6.root}</echo>
+    <echo>appdir: ${app.jar.dir}</echo>
+    <!-- 设置classpath -->
+    <path id="classpath">
+        <fileset dir="${lib.dir}">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+    <!-- 初始化 -->
+    <target name="init">
+        <delete dir="${app.jar.dir}" includes="**/*" includeemptydirs="true"/>
+        <mkdir dir="${classes.dir}"/>
+        <mkdir dir="${app.jar.dir}"/>
+    </target>
+
+    <condition property="executable" value="C:\Program Files\Java\jdk1.6.0_34\bin\javac">
+        <os family="windows"></os>
+    </condition>
+    <condition property="need.fork" value="yes" else="no">
+        <os family="windows"></os>
+    </condition>
+    <!-- 编译 -->
+    <target name="compile" depends="init">
+        <javac destdir="${classes.dir}" includeantruntime="on" srcdir="." encoding="UTF-8" fork="${need.fork}" executable="${executable}">
+            <classpath refid="classpath"/>
+        </javac>
+    </target>
+
+    <target name="create_jar" depends="compile" description="打包">
+        <pathconvert property="mf.classpath" pathsep=" ">
+            <mapper>
+                <chainedmapper>
+                    <!-- 移除绝对路径 -->
+                    <flattenmapper/>
+                    <!-- 加上lib前缀 -->
+                    <globmapper from="*" to="../lib/*"/>
+                </chainedmapper>
+            </mapper>
+            <fileset dir="${lib.dir}">
+                <include name="*.jar"/>
+            </fileset>
+        </pathconvert>
+        <jar destfile="${app.jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}">
+            <manifest>
+                <attribute name="Main-Class"
+                        value="${start_class}"/>
+                <attribute name="Class-Path"
+                        value="${mf.classpath} "/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="purge">
+        <delete dir="${classes.dir}"></delete>
+    </target>
+
+    <!-- 复制资源文件到编译路径 -->
+    <target name="copyresource">
+        <echo>${ant.project.name} 复制资源文件到编译路径</echo>
+        <copydir src="." includes="version.properties,yfmodule.xml" dest="${app.jar.dir}"></copydir>
+        <copydir dest="${app.jar.dir}/lib" src="${lib.dir}"/>
+        <copydir dest="${app.jar.dir}" src="${rescources.dir}"/>
+    </target>
+
+    <!-- 生成版本信息 -->
+    <target name="changeversion">
+        <echo>${ant.project.name} 生成版本信息</echo>
+        <propertyfile file="${app.jar.dir}/version.properties" comment="version">
+            <entry key="project.version" type="int" default="000001" operation="+" pattern="000000"/>
+            <entry key="project.complie.date" type="date" value="now" pattern="yyyyMMddHHmm"/>
+        </propertyfile>
+    </target>
+
+    <!-- 修改版本文件 -->
+    <target name="version" depends="changeversion">
+        <echo>${ant.project.name} 修改版本文件</echo>
+        <property file="${app.jar.dir}/version.properties"/>
+        <replaceregexp encoding="utf-8" match="&quot; version=&quot;(.+)&quot;" replace="&quot; version=&quot;${project.version}.v${project.complie.date}&quot;">
+            <fileset dir=".." includes="**/yfpublish.xml"/>
+        </replaceregexp>
+    </target>
+
+    <!-- 做所有事情 -->
+    <target name="all" depends="create_jar,copyresource,version,purge" description="Build everything."/>
+
+</project>

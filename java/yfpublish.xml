@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<project name="数据源组件工具(简单版)" version="000002.v201507291203">
+		<fileset dir="V6数据源组件工具(简单版)">
+			<include name="**"/>
+		</fileset>
+	</project>
+</root>

@@ -1,0 +1,1 @@
+java -Dfile.encoding=gbk -Duser.language=zh -cp .:lib/forms_rt.jar:lib/commons-io.jar:lib/commons-logging.jar:lib/dom4j.jar:lib/gson.jar:lib/guava.jar:lib/jaxen.jar:lib/log4j.jar:lib/slf4j-api.jar:lib/slf4j-log4j12.jar:lib/treetable-java.jar:lib/yfutil.jar:datasourcetools.jar youngfriend.App -Xms256M -Xmx512M -XX:PermSize=64M -XX:MaxPermSize=128M

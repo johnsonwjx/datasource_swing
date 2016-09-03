@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>       
+    <module version="1.0">       
+        <info id="datasourcetool">
+           <code>datasourcetool</code>
+           <typecode>00</typecode>
+           <typename>平台系统</typename>
+           <type>E</type>
+           <subtype></subtype>
+           <name>数据源组件工具(简单版)</name>
+           <classname></classname>
+           <description> </description>
+           <propclassname></propclassname>
+           <inparam></inparam>
+           <outparam></outparam>
+        </info>        
+        <fileset>datasourcetool.jar</fileset>
+    </module>
+</root>
