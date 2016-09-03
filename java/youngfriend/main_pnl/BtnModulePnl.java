@@ -51,8 +51,8 @@ public class BtnModulePnl extends AbstractMainPnl {
     public BtnModulePnl() {
         initComponents();
         commonModule = false;
-        inparamTableDeletage = new InparamTableDelegateButtonAbs();
         afterUi(table_combo, outParams_table, outParamsAdd_btn, outParamsDel_btn, readOnlyCb);
+        inparamTableDeletage = new InparamTableDelegateButtonAbs(fieldtable);
     }
 
 

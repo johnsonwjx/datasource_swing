@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 import youngfriend.bean.BeanDto;
 import youngfriend.gui.ListDlg;
 import youngfriend.main_pnl.deleagte.InparamTableDelegateAbs;
-import youngfriend.main_pnl.deleagte.InparamTableDelegateCommonAbs;
 import youngfriend.main_pnl.deleagte.OutParamTableDeletate;
+import youngfriend.main_pnl.utils.GetInparamFieldsUtil;
 import youngfriend.utils.ModuleType;
 import youngfriend.utils.PubUtil;
 import youngfriend.utils.ServiceInvoker;
@@ -72,12 +72,8 @@ public abstract class AbstractMainPnl extends JPanel {
     protected ListDlg fieldListDlg = new ListDlg(PubUtil.mainFrame);
     protected List<BeanDto> fields = new ArrayList<BeanDto>();
     private JCheckBox readOnlyCb;
+    private Map<BeanDto, List<Element>> tablesMap = new HashMap<BeanDto, List<Element>>();
 
-    //清空字段列表
-    public void clearFieldList() {
-        fieldListDlg.clear();
-        fields.clear();
-    }
 
     /**
      * ----------------------------------------------------
@@ -100,7 +96,6 @@ public abstract class AbstractMainPnl extends JPanel {
     public void clear() {
         this.serviceBean = null;
         table_combo.removeAllItems();
-        clearFieldList();
     }
 
     public void saveParam(String modulelabel, JsonObject jsonData) {
@@ -151,15 +146,40 @@ public abstract class AbstractMainPnl extends JPanel {
         return null;
     }
 
-    private void tableSelect(BeanDto tablebean) {
-        clearFieldList();
-        inparamTableDeletage.clear();
-        this.tableBean = tablebean;
-        if (tablebean == null) {
-            return;
-        }
-        inparamTableDeletage.initTableData(servicetype, tablebean, fieldListDlg, fields);
 
+    /**
+     * 表格 选择 初始化 入口参数表字段 , 选择字段fieldListDlg,fields
+     *
+     * @param tablebean
+     */
+    private void tableSelect(BeanDto tablebean) {
+        if (tablebean == null) {
+            inparamTableDeletage.clear();
+            //清空字段
+            fieldListDlg.clear();
+            fields.clear();
+
+        } else {
+            try {
+                JTable table = inparamTableDeletage.getTable();
+                if (!commonModule) {
+                    GetInparamFieldsUtil.initTableDataService(table, tablebean, fieldListDlg, fields);
+                } else {
+                    if (servicetype == ServiceType.SERVICE2_CODECENTER) {
+                        GetInparamFieldsUtil.initTableDataCodetableServer2(table, tablebean, fieldListDlg, fields);
+                    } else {
+                        //Service3 Service2 都通用 这个 取字段了
+                        GetInparamFieldsUtil.initTableDataCommon(table, tablesMap, tablebean, fieldListDlg, fields);
+                    }
+                }
+
+            } catch (Exception e) {
+                PubUtil.showMsg("获取表格数据错误");
+                logger.error(e.getMessage());
+
+            }
+        }
+        this.tableBean = tablebean;
     }
 
     /**
@@ -223,7 +243,12 @@ public abstract class AbstractMainPnl extends JPanel {
         table_combo.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent itemEvent) {
-                tableSelect((BeanDto) table_combo.getSelectedItem());
+                if (itemEvent.getStateChange() == ItemEvent.DESELECTED) {
+                    tableSelect(null);
+                } else {
+                    tableSelect((BeanDto) table_combo.getSelectedItem());
+                }
+
             }
         });
         outParamTableDeletate = new OutParamTableDeletate(outTable, outParamsAddBtn, outParamsDelBtn);
@@ -240,6 +265,7 @@ public abstract class AbstractMainPnl extends JPanel {
         try {
             init = true;
             this.clear();
+            tablesMap.clear();
             this.serviceBean = dto;
             if (serviceBean == null) {
                 return;
@@ -248,7 +274,6 @@ public abstract class AbstractMainPnl extends JPanel {
             List<BeanDto> lst = null;
             if (commonModule) {
                 String tableXML = null;
-                Map<BeanDto, List<Element>> tablesMap = new HashMap<BeanDto, List<Element>>();
                 if (PubUtil.mainFrame.isVersion2()) {
                     tableXML = ServiceInvoker.getTables(servicename, PubUtil.getService2Url());
                     if ("codecenter".equals(servicename)) {
@@ -256,6 +281,7 @@ public abstract class AbstractMainPnl extends JPanel {
                         lst = ServiceInvoker.parseTable(servicename, tableXML, null);
                     } else {
                         servicetype = ServiceType.SERVICE2;
+
                         lst = ServiceInvoker.parseTable(servicename, tableXML, tablesMap);
                     }
                 } else {
@@ -264,7 +290,6 @@ public abstract class AbstractMainPnl extends JPanel {
                     lst = ServiceInvoker.parseTable(servicename, tableXML, tablesMap);
                 }
                 //通用的 设置 表格
-                ((InparamTableDelegateCommonAbs) inparamTableDeletage).setTablesMap(tablesMap);
             } else {
                 lst = ServiceInvoker.getDataSource(servicename, !PubUtil.mainFrame.isVersion2(), ModuleType.SERVICE);
             }

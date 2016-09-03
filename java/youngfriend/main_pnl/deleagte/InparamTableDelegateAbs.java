@@ -4,15 +4,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import youngfriend.bean.BeanDto;
 import youngfriend.bean.CheckBoxHeader;
-import youngfriend.gui.ListDlg;
-import youngfriend.utils.MainPnlUtil;
+import youngfriend.main_pnl.utils.MainPnlUtil;
 import youngfriend.utils.PubUtil;
-import youngfriend.utils.ServiceType;
 
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -76,10 +73,6 @@ public abstract class InparamTableDelegateAbs {
         MainPnlUtil.clearTable(table);
     }
 
-    /**
-     * 初始化 表格
-     */
-    public abstract void initTable();
 
     /**
      * ----------------------------------------------------------
@@ -218,5 +211,4 @@ public abstract class InparamTableDelegateAbs {
      */
     protected abstract void preSaveInparam();
 
-    public abstract void initTableData(ServiceType servicetype, BeanDto tablebean, ListDlg fieldListDlg, List<BeanDto> fields);
 }

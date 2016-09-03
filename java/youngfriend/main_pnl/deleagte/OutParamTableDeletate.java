@@ -4,7 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import youngfriend.exception.ParamValidateExcption;
-import youngfriend.utils.MainPnlUtil;
+import youngfriend.main_pnl.utils.MainPnlUtil;
 import youngfriend.utils.PubUtil;
 
 import javax.swing.JButton;

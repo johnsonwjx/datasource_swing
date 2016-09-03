@@ -7,6 +7,7 @@ package youngfriend.gui;
 
 import youngfriend.bean.BeanDto;
 import youngfriend.common.util.StringUtils;
+import youngfriend.main_pnl.deleagte.InparamTableDelegateAbs;
 import youngfriend.utils.PubUtil;
 
 import javax.swing.DefaultListModel;
@@ -78,7 +79,7 @@ public class SortFieldDlg extends javax.swing.JDialog {
             }
             List<BeanDto> selectDtos = new ArrayList<BeanDto>();
             for (BeanDto beanDto : fields) {
-                String field_name = beanDto.getValue("field_name");
+                String field_name = beanDto.getValue(InparamTableDelegateAbs.FIELD_NAME_PROPNAME);
                 if (list != null) {
                     if (list.contains(field_name.toUpperCase())) {
                         selectDtos.add(beanDto);
@@ -95,7 +96,7 @@ public class SortFieldDlg extends javax.swing.JDialog {
             if (!selectDtos.isEmpty()) {
                 for (String field : list) {
                     for (BeanDto dto : selectDtos) {
-                        String field_name = dto.getValue("field_name");
+                        String field_name = dto.getValue(InparamTableDelegateAbs.FIELD_NAME_PROPNAME);
                         if (field_name.toUpperCase().equals(field)) {
                             model.addRow(new Object[]{dto, false});
                         } else if (field.equals(field_name.toUpperCase() + " DESC")) {
@@ -125,7 +126,7 @@ public class SortFieldDlg extends javax.swing.JDialog {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < jTable1.getRowCount(); i++) {
                 BeanDto dto = (BeanDto) jTable1.getValueAt(i, 0);
-                sb.append(dto.getValue("field_name"));
+                sb.append(dto.getValue(InparamTableDelegateAbs.FIELD_NAME_PROPNAME));
                 if (Boolean.TRUE.equals(jTable1.getValueAt(i, 1))) {
                     sb.append(" DESC");
                 }

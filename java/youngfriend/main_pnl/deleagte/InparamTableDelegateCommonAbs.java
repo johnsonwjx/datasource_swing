@@ -2,7 +2,6 @@ package youngfriend.main_pnl.deleagte;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.dom4j.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import youngfriend.bean.BeanDto;
@@ -10,18 +9,13 @@ import youngfriend.bean.CheckBoxHeader;
 import youngfriend.bean.ColumnGroup;
 import youngfriend.bean.GroupableTableHeader;
 import youngfriend.common.util.StringUtils;
-import youngfriend.gui.ListDlg;
-import youngfriend.utils.MainPnlUtil;
 import youngfriend.utils.PubUtil;
-import youngfriend.utils.ServiceInvoker;
-import youngfriend.utils.ServiceType;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import java.beans.PropertyChangeEvent;
@@ -68,9 +62,118 @@ public abstract class InparamTableDelegateCommonAbs extends InparamTableDelegate
 
     public InparamTableDelegateCommonAbs(JTable table) {
         this.table = table;
+        initTable();
     }
 
-    protected Map<BeanDto, List<Element>> tablesMap = new LinkedHashMap();
+    private void initTable() {
+        TableColumnModel cm = table.getColumnModel();
+        boolean isUpdatePnl = cm.getColumnCount() <= INDEX_GROUPBY;
+        if (!isUpdatePnl) {
+            checkboxIndexs = new int[]{INDEX_EXCEPT, INDEX_INPARAM, INDEX_INPARAM_NULL_IGNORE, INDEX_GROUPBY};
+        } else {
+            checkboxIndexs = new int[]{INDEX_EXCEPT, INDEX_INPARAM, INDEX_INPARAM_NULL_IGNORE};
+        }
+        initCheckHeader();
+
+        Map<String, int[]> groupColumnMap = new LinkedHashMap();
+        groupColumnMap.put("入口参数", new int[]{INDEX_INPARAM, INDEX_INPARAM_NULL_IGNORE, INDEX_OPER});
+        if (!isUpdatePnl) {
+            groupColumnMap.put("分类汇总", new int[]{INDEX_GROUPBY, INDEX_SUM});
+        }
+
+        GroupableTableHeader groupableTableHeader = new GroupableTableHeader(cm);
+        table.setTableHeader(groupableTableHeader);
+        Set<String> groupColumnTitles = groupColumnMap.keySet();
+        for (String title : groupColumnTitles) {
+            int[] indexArr = groupColumnMap.get(title);
+            ColumnGroup inputColumn = new ColumnGroup(title);
+            for (int i : indexArr) {
+                inputColumn.add(cm.getColumn(i));
+            }
+        }
+
+        cm.getColumn(INDEX_EXCEPT).setMinWidth(100);
+        cm.getColumn(INDEX_EXCEPT).setMaxWidth(100);
+        cm.getColumn(INDEX_INPARAM).setMinWidth(100);
+        cm.getColumn(INDEX_INPARAM).setMaxWidth(100);
+        cm.getColumn(INDEX_INPARAM_NULL_IGNORE).setMinWidth(120);
+        cm.getColumn(INDEX_INPARAM_NULL_IGNORE).setMaxWidth(140);
+        cm.getColumn(INDEX_FIXED_VALUE).setMaxWidth(130);
+        cm.getColumn(INDEX_FIXED_VALUE).setMinWidth(130);
+
+        cm.getColumn(INDEX_FIXED_VALUE).setCellEditor(new DefaultCellEditor(new JComboBox(FIXEDVALUES)));
+        cm.getColumn(INDEX_OPER).setCellEditor(new DefaultCellEditor(new JComboBox(OPERVALUES)));
+        if (!isUpdatePnl) {
+            cm.getColumn(INDEX_GROUPBY).setMaxWidth(100);
+            cm.getColumn(INDEX_GROUPBY).setMinWidth(100);
+            cm.getColumn(INDEX_SUM).setMaxWidth(100);
+            cm.getColumn(INDEX_SUM).setMinWidth(100);
+            cm.getColumn(INDEX_SUM).setCellEditor(new DefaultCellEditor(new JComboBox(SUMVALUES)));
+
+        }
+
+        if (checkboxIndexs != null) {
+            for (int col : checkboxIndexs) {
+                final TableColumn column = cm.getColumn(col);
+                column.setHeaderRenderer(new CheckBoxHeader());
+            }
+        }
+
+
+        table.addPropertyChangeListener(new PropertyChangeListener() {
+            private boolean editorFlag = false;
+
+            @Override
+            public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
+                if (editorFlag) {
+                    return;
+                }
+                if ("tableCellEditor".equals(propertyChangeEvent.getPropertyName())) {
+                    if (!table.isEditing()) {
+                        editorFlag = true;
+                        int editingColumn = table.getEditingColumn();
+                        int editingRow = table.getEditingRow();
+                        Object valueAt = table.getValueAt(editingRow, editingColumn);
+                        CheckBoxHeader headerRenderer = (CheckBoxHeader) table.getColumnModel().getColumn(editingColumn).getHeaderRenderer();
+                        if (headerRenderer != null) {
+                            headerRenderer.setInit(true);
+                            if (Boolean.FALSE.equals(valueAt)) {
+                                headerRenderer.setSelected(false);
+                                if (editingColumn == INDEX_INPARAM) {
+                                    table.setValueAt(OPERVALUES[0], editingRow, INDEX_OPER);
+                                }
+                            } else {
+                                boolean flag = true;
+                                for (int i = 0; i < table.getRowCount(); i++) {
+                                    Object value = table.getValueAt(i, editingColumn);
+                                    if (Boolean.FALSE.equals(value)) {
+                                        flag = false;
+                                        break;
+                                    }
+                                }
+                                if (flag) {
+                                    headerRenderer.setSelected(true);
+                                }
+                                if (editingColumn == INDEX_INPARAM) {
+                                    table.setValueAt(OPERVALUES[1], editingRow, INDEX_OPER);
+                                }
+                            }
+                            headerRenderer.setInit(false);
+                            table.getTableHeader().repaint();
+                        } else if (editingColumn == INDEX_SUM && valueAt != null) {
+                            BeanDto field = (BeanDto) table.getValueAt(editingRow, INDEX_FIELD);
+                            BeanDto dto = (BeanDto) valueAt;
+                            if (!"N".equals(field.getValue(FIELD_TYPE_PROPNAME)) && "sum".equals(dto.getValue("value"))) {
+                                PubUtil.showMsg("字段不是数字类型");
+                                table.setValueAt(null, editingRow, INDEX_SUM);
+                            }
+                        }
+                        editorFlag = false;
+                    }
+                }
+            }
+        });
+    }
 
 
     /**
@@ -260,190 +363,6 @@ public abstract class InparamTableDelegateCommonAbs extends InparamTableDelegate
         }
     }
 
-    public void setTablesMap(Map<BeanDto, List<Element>> tablesMap) {
-        this.tablesMap = tablesMap;
-    }
-
-    @Override
-    public void initTableData(ServiceType servicetype, BeanDto tablebean, ListDlg fieldListDlg, List<BeanDto> fields) {
-        try {
-            if (servicetype == ServiceType.SERVICE2_CODECENTER) {
-                initTableDataBySrvice2Codetable(tablebean, fieldListDlg, fields);
-            } else {
-                initTableDataBySrvice(tablesMap, tablebean, fieldListDlg, fields);
-            }
-        } catch (Exception e) {
-            PubUtil.showMsg("获取表格数据错误");
-            logger.error(e.getMessage());
-
-        }
-    }
-
-    /**
-     * 根据选择的table初始化表格字段,并初始化字段和选择字段的diaglog
-     *
-     * @param tablebean
-     */
-    private void initTableDataBySrvice(Map<BeanDto, List<Element>> tableMap, BeanDto tablebean, ListDlg fieldListDlg, List<BeanDto> fields) {
-        DefaultTableModel model = MainPnlUtil.clearTable(table);
-        java.util.List<Element> elements = tableMap.get(tablebean);
-        if (elements == null) {
-            return;
-        }
-        for (Element element : elements) {
-            java.util.List<Element> paras = element.elements("Para");
-            JsonObject object = new JsonObject();
-            for (Element para : paras) {
-                String name = para.attributeValue("name");
-                String text = para.getText();
-                object.addProperty(name.toLowerCase(), text);
-            }
-            object.addProperty(FIELD_NAME_PROPNAME, object.get(FIELD_NAME_PROPNAME).getAsString().toLowerCase());
-            BeanDto fielddto = new BeanDto(object, FIELD_NAME_PROPNAME);
-            model.addRow(new Object[]{fielddto, fielddto.getValue(FIELD_DESC_PROPNAME)});
-            fieldListDlg.addItem(fielddto);
-            fields.add(fielddto);
-        }
-    }
-
-
-    private void initTableDataBySrvice2Codetable(BeanDto tablebean, ListDlg fieldListDlg, List<BeanDto> fields) throws Exception {
-        DefaultTableModel model = MainPnlUtil.clearTable(table);
-        java.util.List<Element> elements = ServiceInvoker.getCodeFields(tablebean.getValue("id"), PubUtil.getService2Url());
-        if (elements == null) {
-            return;
-        }
-        for (Element element : elements) {
-            java.util.List<Element> paras = element.elements();
-            JsonObject object = new JsonObject();
-            for (Element para : paras) {
-                object.addProperty(para.getName().toLowerCase(), para.getText());
-            }
-            String name = element.elementText("fieldname");
-            String text = element.elementText("fieldlabel");
-            String fieldtype = element.elementText("fieldtype");
-            String fieldlength = element.elementText("fieldlength");
-            object.addProperty(FIELD_NAME_PROPNAME, name.toLowerCase());
-            object.addProperty(FIELD_DESC_PROPNAME, text);
-            object.addProperty(FIELD_TYPE_PROPNAME, fieldtype);
-            object.addProperty(FIELD_LENGTH_PROPNAME, fieldlength);
-            BeanDto fielddto = new BeanDto(object, FIELD_NAME_PROPNAME);
-            model.addRow(new Object[]{fielddto});
-            fieldListDlg.addItem(fielddto);
-            fields.add(fielddto);
-        }
-    }
-
-    @Override
-    public void initTable() {
-        TableColumnModel cm = table.getColumnModel();
-        boolean isUpdatePnl = cm.getColumnCount() <= INDEX_GROUPBY;
-        if (!isUpdatePnl) {
-            checkboxIndexs = new int[]{INDEX_EXCEPT, INDEX_INPARAM, INDEX_INPARAM_NULL_IGNORE, INDEX_GROUPBY};
-        } else {
-            checkboxIndexs = new int[]{INDEX_EXCEPT, INDEX_INPARAM, INDEX_INPARAM_NULL_IGNORE};
-        }
-        initCheckHeader();
-
-        Map<String, int[]> groupColumnMap = new LinkedHashMap();
-        groupColumnMap.put("入口参数", new int[]{INDEX_INPARAM, INDEX_INPARAM_NULL_IGNORE, INDEX_OPER});
-        if (!isUpdatePnl) {
-            groupColumnMap.put("分类汇总", new int[]{INDEX_GROUPBY, INDEX_SUM});
-        }
-
-        GroupableTableHeader groupableTableHeader = new GroupableTableHeader(cm);
-        table.setTableHeader(groupableTableHeader);
-        Set<String> groupColumnTitles = groupColumnMap.keySet();
-        for (String title : groupColumnTitles) {
-            int[] indexArr = groupColumnMap.get(title);
-            ColumnGroup inputColumn = new ColumnGroup(title);
-            for (int i : indexArr) {
-                inputColumn.add(cm.getColumn(i));
-            }
-        }
-
-        cm.getColumn(INDEX_EXCEPT).setMinWidth(100);
-        cm.getColumn(INDEX_EXCEPT).setMaxWidth(100);
-        cm.getColumn(INDEX_INPARAM).setMinWidth(100);
-        cm.getColumn(INDEX_INPARAM).setMaxWidth(100);
-        cm.getColumn(INDEX_INPARAM_NULL_IGNORE).setMinWidth(120);
-        cm.getColumn(INDEX_INPARAM_NULL_IGNORE).setMaxWidth(140);
-        cm.getColumn(INDEX_FIXED_VALUE).setMaxWidth(130);
-        cm.getColumn(INDEX_FIXED_VALUE).setMinWidth(130);
-
-        cm.getColumn(INDEX_FIXED_VALUE).setCellEditor(new DefaultCellEditor(new JComboBox(FIXEDVALUES)));
-        cm.getColumn(INDEX_OPER).setCellEditor(new DefaultCellEditor(new JComboBox(OPERVALUES)));
-        if (!isUpdatePnl) {
-            cm.getColumn(INDEX_GROUPBY).setMaxWidth(100);
-            cm.getColumn(INDEX_GROUPBY).setMinWidth(100);
-            cm.getColumn(INDEX_SUM).setMaxWidth(100);
-            cm.getColumn(INDEX_SUM).setMinWidth(100);
-            cm.getColumn(INDEX_SUM).setCellEditor(new DefaultCellEditor(new JComboBox(SUMVALUES)));
-
-        }
-
-        if (checkboxIndexs != null) {
-            for (int col : checkboxIndexs) {
-                final TableColumn column = cm.getColumn(col);
-                column.setHeaderRenderer(new CheckBoxHeader());
-            }
-        }
-
-
-        table.addPropertyChangeListener(new PropertyChangeListener() {
-            private boolean editorFlag = false;
-
-            @Override
-            public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
-                if (editorFlag) {
-                    return;
-                }
-                if ("tableCellEditor".equals(propertyChangeEvent.getPropertyName())) {
-                    if (!table.isEditing()) {
-                        editorFlag = true;
-                        int editingColumn = table.getEditingColumn();
-                        int editingRow = table.getEditingRow();
-                        Object valueAt = table.getValueAt(editingRow, editingColumn);
-                        CheckBoxHeader headerRenderer = (CheckBoxHeader) table.getColumnModel().getColumn(editingColumn).getHeaderRenderer();
-                        if (headerRenderer != null) {
-                            headerRenderer.setInit(true);
-                            if (Boolean.FALSE.equals(valueAt)) {
-                                headerRenderer.setSelected(false);
-                                if (editingColumn == INDEX_INPARAM) {
-                                    table.setValueAt(OPERVALUES[0], editingRow, INDEX_OPER);
-                                }
-                            } else {
-                                boolean flag = true;
-                                for (int i = 0; i < table.getRowCount(); i++) {
-                                    Object value = table.getValueAt(i, editingColumn);
-                                    if (Boolean.FALSE.equals(value)) {
-                                        flag = false;
-                                        break;
-                                    }
-                                }
-                                if (flag) {
-                                    headerRenderer.setSelected(true);
-                                }
-                                if (editingColumn == INDEX_INPARAM) {
-                                    table.setValueAt(OPERVALUES[1], editingRow, INDEX_OPER);
-                                }
-                            }
-                            headerRenderer.setInit(false);
-                            table.getTableHeader().repaint();
-                        } else if (editingColumn == INDEX_SUM && valueAt != null) {
-                            BeanDto field = (BeanDto) table.getValueAt(editingRow, INDEX_FIELD);
-                            BeanDto dto = (BeanDto) valueAt;
-                            if (!"N".equals(field.getValue(FIELD_TYPE_PROPNAME)) && "sum".equals(dto.getValue("value"))) {
-                                PubUtil.showMsg("字段不是数字类型");
-                                table.setValueAt(null, editingRow, INDEX_SUM);
-                            }
-                        }
-                        editorFlag = false;
-                    }
-                }
-            }
-        });
-    }
-
 
 }
+

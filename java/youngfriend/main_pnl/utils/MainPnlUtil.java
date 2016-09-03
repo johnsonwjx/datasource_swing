@@ -1,4 +1,6 @@
-package youngfriend.utils;
+package youngfriend.main_pnl.utils;
+
+import youngfriend.utils.PubUtil;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;

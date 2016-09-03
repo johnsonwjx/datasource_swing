@@ -17,6 +17,7 @@ import youngfriend.common.util.StringUtils;
 import youngfriend.common.util.encoding.Base64;
 import youngfriend.common.util.net.ServiceInvokerUtil;
 import youngfriend.common.util.net.exception.ServiceInvokerException;
+import youngfriend.main_pnl.deleagte.InparamTableDelegateAbs;
 
 import java.net.InetAddress;
 import java.net.URL;
@@ -392,7 +393,7 @@ public class ServiceInvoker {
         while (iterator.hasNext()) {
             JsonElement next = iterator.next();
             JsonObject asJsonObject = next.getAsJsonObject();
-            BeanDto dto = new BeanDto(asJsonObject, "field_name");
+            BeanDto dto = new BeanDto(asJsonObject, InparamTableDelegateAbs.FIELD_NAME_PROPNAME);
             list.add(dto);
         }
         return list;

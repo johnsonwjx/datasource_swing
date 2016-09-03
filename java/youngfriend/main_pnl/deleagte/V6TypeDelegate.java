@@ -29,9 +29,9 @@ public class V6TypeDelegate {
     private BeanDto v6type;
     private final JTextField v6typeTf;
     private static final ListDlg v6typeDlg;
-    public static final String V6TYPE_PROP = "v6datatype";
+    public static final String V6TYPE_GET = "v6datatype";
     //保存 属性
-    public static final String V6DATAPROP = "v6dataprop";
+    public static final String V6TYPE_SAVE = "v6dataprop";
 
 
     static {
@@ -46,9 +46,9 @@ public class V6TypeDelegate {
             for (Element ele : querydatas) {
                 String name = ele.elementText("name");
                 JsonObject obj = new JsonObject();
-                obj.addProperty(V6TYPE_PROP, ele.elementText(V6TYPE_PROP));
+                obj.addProperty(V6TYPE_GET, ele.elementText(V6TYPE_GET));
                 obj.addProperty("name", name);
-                BeanDto dto = new BeanDto(obj, "name", V6TYPE_PROP);
+                BeanDto dto = new BeanDto(obj, "name", V6TYPE_GET);
                 v6typeDlg.addItem(dto);
             }
         } catch (Exception e) {
@@ -89,9 +89,9 @@ public class V6TypeDelegate {
      * @param inparmasObj
      */
     public void loadV6PropData(JsonObject inparmasObj) {
-        String v6dataprop = PubUtil.getProp(inparmasObj, V6DATAPROP);
+        String v6dataprop = PubUtil.getProp(inparmasObj, V6TYPE_SAVE);
         if (!Strings.isNullOrEmpty(v6dataprop)) {
-            v6typeDlg.setSelect(V6TYPE_PROP, v6dataprop);
+            v6typeDlg.setSelect(V6TYPE_GET, v6dataprop);
             BeanDto select = v6typeDlg.getSelect();
             changeV6type(select);
         }
@@ -103,7 +103,7 @@ public class V6TypeDelegate {
      * @param inparam
      */
     public void saveV6typeInparam(JsonObject inparam) {
-        inparam.addProperty(V6TYPE_PROP, v6type == null ? "" : v6type.getValue(V6TYPE_PROP));
+        inparam.addProperty(V6TYPE_SAVE, v6type == null ? "" : v6type.getValue(V6TYPE_GET));
     }
 
     public void clear() {

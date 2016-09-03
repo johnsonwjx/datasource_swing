@@ -88,9 +88,10 @@ public class ServicePnl extends AbstractMainPnl {
     public ServicePnl() {
         initComponents();
         commonModule = false;
+        afterUi(table_combo, outParams_table, outParamsAdd_btn, outParamsDel_btn, readOnlyCb);
         v6TypeDelegate = new V6TypeDelegate(v6type_btn, v6type_tf);
         buildTreeDataDelegate = new BuildTreeDataDelegate(tree_checkbox, fieldListDlg, rootName_tf, codeField_tf, nameField_tf, codeInc_tf, codeField_btn, name_field_btn);
-        sortFieldDelegate = new SortFieldDelegate(sort_tf,sort_btn, fields);
+        sortFieldDelegate = new SortFieldDelegate(sort_tf, sort_btn, fields);
         inparamTableDeletage = new InparamTableDelegateCommonAbs(fieldtable) {
             @Override
             protected void loadFieldCustom(BeanDto field) {

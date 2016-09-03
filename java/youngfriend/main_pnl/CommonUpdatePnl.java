@@ -11,6 +11,7 @@ import com.google.gson.JsonObject;
 import youngfriend.bean.BeanDto;
 import youngfriend.bean.ButtonCellEditor;
 import youngfriend.common.util.StringUtils;
+import youngfriend.main_pnl.deleagte.InparamTableDelegateAbs;
 import youngfriend.main_pnl.deleagte.InparamTableDelegateCommonAbs;
 import youngfriend.utils.PubUtil;
 
@@ -20,7 +21,6 @@ import javax.swing.table.TableColumn;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -55,7 +55,7 @@ public class CommonUpdatePnl extends AbstractMainPnl {
                 Iterator<JsonElement> iterator = updateParamsArr.iterator();
                 while (iterator.hasNext()) {
                     JsonObject item = iterator.next().getAsJsonObject();
-                    model.addRow(new String[]{PubUtil.getProp(item, "field_name"), PubUtil.getProp(item, "value")});
+                    model.addRow(new String[]{PubUtil.getProp(item, InparamTableDelegateAbs.FIELD_NAME_PROPNAME), PubUtil.getProp(item, "value")});
                 }
             }
         } finally {
@@ -90,7 +90,7 @@ public class CommonUpdatePnl extends AbstractMainPnl {
         int rowCount = update_table.getRowCount();
         for (int i = 0; i < rowCount; i++) {
             JsonObject item = new JsonObject();
-            item.addProperty("field_name", (String) update_table.getValueAt(i, 0));
+            item.addProperty(InparamTableDelegateAbs.FIELD_NAME_PROPNAME, (String) update_table.getValueAt(i, 0));
             item.addProperty("value", (String) update_table.getValueAt(i, 1));
             updateParams.add(item);
         }
@@ -104,25 +104,23 @@ public class CommonUpdatePnl extends AbstractMainPnl {
      */
     public CommonUpdatePnl() {
         initComponents();
-        after();
-    }
-
-    private void after() /**/ {
+        afterUi(table_combo, outParams_table, outParamsAdd_btn, outParamsDel_btn, readOnlyCb);
         inparamTableDeletage = new InparamTableDelegateCommonAbs(fieldtable) {
             @Override
             protected void loadFieldCustom(BeanDto field) {
             }
         };
-        inparamTableDeletage.initTable();
-        afterUi(table_combo, outParams_table, outParamsAdd_btn, outParamsDel_btn, readOnlyCb);
+        initUpdateTable();
+    }
 
+    private void initUpdateTable() {
         TableColumn updateFieldColumn = update_table.getColumnModel().getColumn(0);
         final ButtonCellEditor buttonCellEditor = new ButtonCellEditor(new JTextField());
         buttonCellEditor.initAction(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 String value = (String) buttonCellEditor.getCellEditorValue();
-                BeanDto field = PubUtil.getDto(fields, "field_name", value);
+                BeanDto field = PubUtil.getDto(fields, InparamTableDelegateAbs.FIELD_NAME_PROPNAME, value);
                 fieldListDlg.setSelect(field);
                 fieldListDlg.showDlg();
                 if (!fieldListDlg.isOk()) {
