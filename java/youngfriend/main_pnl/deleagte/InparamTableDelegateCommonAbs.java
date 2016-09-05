@@ -2,8 +2,6 @@ package youngfriend.main_pnl.deleagte;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import youngfriend.bean.BeanDto;
 import youngfriend.bean.CheckBoxHeader;
 import youngfriend.bean.ColumnGroup;
@@ -30,14 +28,13 @@ import java.util.Set;
  * Created by xiong on 9/2/16.
  */
 public abstract class InparamTableDelegateCommonAbs extends InparamTableDelegateAbs {
-    private static final Logger logger = LoggerFactory.getLogger(InparamTableDelegateCommonAbs.class);
     //合计
     public static final BeanDto[] SUMVALUES = new BeanDto[]{null, new BeanDto("合计", "sum")};
     //固定值
-    public static final BeanDto[] FIXEDVALUES = new BeanDto[]{null, new BeanDto("身份认证Id", "sysAccessID"),//
-            new BeanDto("系统角色Id", "sysrole"), new BeanDto("操作用户Id", "userID"), new BeanDto("人员Id", "personid"),//
-            new BeanDto("当前项目代码", "curProjectCode"), new BeanDto("注册用户名", "regname"), new BeanDto("用户名", "username"),//
-            new BeanDto("当前日期", "currentDate"), new BeanDto("集团Id", "corpid"), new BeanDto("集团代码", "corpcode"), new BeanDto("集团名称", "corpname")
+    public static final BeanDto[] FIXEDVALUES = new BeanDto[]{null, new BeanDto("当前日期", "currentDate"), new BeanDto("操作用户ID", "userID"), new BeanDto("操作用户姓名", "username"),
+            new BeanDto("操作用户注册名", "regname"), new BeanDto("操作用户的员工ID", "personid"),
+            new BeanDto("操作用户的角色ID", "sysrole"), new BeanDto("集团ID", "corpid"), new BeanDto("集团代码", "corpcode"), new BeanDto("集团名称", "corpname"),
+            new BeanDto("当前会话身份ID", "sysAccessID"), new BeanDto("设计项目代码", "curProjectCode"),
     };
     //操作符
     public static final BeanDto[] OPERVALUES = new BeanDto[]{null, new BeanDto("等于", "EQ"), new BeanDto("不等于", "UNEQ"),//

@@ -338,5 +338,5 @@ public abstract class AbstractMainPnl extends JPanel {
     abstract void saveInparamLevel2Custom(JsonObject inparamLevel1);
 
 
-    protected  abstract  ModuleType getModuleType();
+    protected abstract ModuleType getModuleType();
 }
