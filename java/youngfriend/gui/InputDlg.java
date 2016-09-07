@@ -46,6 +46,7 @@ public class InputDlg extends javax.swing.JDialog {
 
             }
         });
+        this.getRootPane().setDefaultButton(ok_btn);
         if (!StringUtils.nullOrBlank(title)) {
             this.setTitle(title);
         }
@@ -53,6 +54,10 @@ public class InputDlg extends javax.swing.JDialog {
         this.setSize(265, 120);
         this.setPreferredSize(this.getSize());
         this.setVisible(true);
+    }
+
+    public void setValue(String value) {
+        jTextField1.setText(value);
     }
 
     public String getTxt() {

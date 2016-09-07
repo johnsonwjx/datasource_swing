@@ -468,9 +468,8 @@ public class ServiceInvoker {
         if (name != null) {
             object.addProperty("name", name);
         }
-        if ((moduleType == ModuleType.COMMON || moduleType == ModuleType.COMMON_UPDATE) && alias != null) {
-            object.addProperty("modulealias", alias);
-        }
+        //modulealias保存
+        object.addProperty("modulealias", alias);
         if (moduleType != null) {
             object.addProperty("typee", moduleType.getValue());
         }
@@ -478,7 +477,6 @@ public class ServiceInvoker {
             object.addProperty("description", desc);
         }
         if (jsonData != null) {
-            logger.debug(jsonData);
             object.addProperty("inparam", Base64.encode(jsonData.getBytes()));
         }
         dataArray.add(object);
@@ -486,7 +484,6 @@ public class ServiceInvoker {
         tab.put("service", "module2.module.add");
         tab.put("projectcode", projectcode);
         String data = dataArray.toString();
-        logger.debug(data);
         tab.put("data", data);
         tab = serviceInvoke(tab);
         return tab.get("redata");
@@ -622,5 +619,26 @@ public class ServiceInvoker {
         BeanDto dto = new BeanDto(cataLogElement.getAsJsonObject(), App.MODULE_TOSTRING);
         dto.setItem("ismodule", "true");
         return dto;
+    }
+
+    /**
+     * 获取 文件 类型
+     *
+     * @param fileId
+     * @return
+     */
+    public static String getFileType(String fileId) {
+        Hashtable<String, String> paramE = new Hashtable<String, String>(), out;
+        paramE.put("service", "file.getinfo");
+        paramE.put("fileid", fileId);
+        try {
+            out = ServiceInvokerUtil.invoker(paramE);
+        } catch (ServiceInvokerException e) {
+            logger.error(e.getMessage());
+            return null;
+        }
+
+        String fileType = out.get("type");
+        return fileType;
     }
 }

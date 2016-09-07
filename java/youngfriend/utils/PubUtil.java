@@ -342,4 +342,8 @@ public class PubUtil {
     }
 
 
+    public static String getUrlWeb(String serverUrl) {
+        String webUtl = "http://" + serverUrl.substring(0, serverUrl.indexOf(":")) + ":8080/v6engine";
+        return webUtl;
+    }
 }

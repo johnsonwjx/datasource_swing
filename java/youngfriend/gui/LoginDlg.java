@@ -8,6 +8,7 @@ package youngfriend.gui;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import youngfriend.common.util.StringUtils;
 import youngfriend.utils.PubUtil;
 import youngfriend.utils.ServiceInvoker;
 
@@ -54,6 +55,9 @@ public class LoginDlg extends javax.swing.JDialog {
                 dispose();
             }
         });
+        if (!StringUtils.nullOrBlank(username_tf.getText())) {
+            password_tf.requestFocus();
+        }
         this.setVisible(true);
     }
 
@@ -231,4 +235,5 @@ public class LoginDlg extends javax.swing.JDialog {
     public boolean isOk() {
         return ok;
     }
+
 }
