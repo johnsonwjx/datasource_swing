@@ -86,22 +86,7 @@ public class NewCatalogDlg extends javax.swing.JDialog {
         this.codes = codes;
         this.parent_code = parent.getValue("code");
         parent_tf.setText(String.valueOf(parent));
-        String code_str = parent_code + "01";
-        if (!codes.isEmpty()) {
-            String s = codes.get(codes.size() - 1);
-            Integer last_code = Ints.tryParse(s);
-            if (last_code != null) {
-                last_code++;
-                code_str = String.valueOf(last_code);
-                int code_len = 2 - (code_str.length() - parent_code.length());
-                if (code_len != 0) {
-                    for (int i = 0; i < code_len; i++) {
-                        code_str = "0" + code_str;
-                    }
-                }
-            }
-            code_tf.setText(code_str);
-        }
+        code_tf.setText(PubUtil.getLastCode(parent_code,codes.isEmpty()?null: codes.get(codes.size() - 1)));
         ok = false;
         setVisible(true);
     }

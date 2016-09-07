@@ -48,7 +48,7 @@ public class CommonUpdatePnl extends AbstractMainPnl {
         try {
             init = true;
             commomLoadData(jsonData, readOnlyCb);
-            JsonObject inparamLevel1 = PubUtil.getJsonObj(jsonData, INPARAM_PROPNAME, JsonArray.class).get(0).getAsJsonObject();
+            JsonObject inparamLevel1 = PubUtil.getJsonObj(jsonData, InparamTableDelegateAbs.INPARAM_PROPNAME, JsonArray.class).get(0).getAsJsonObject();
             Map<String, JsonObject> inParamFieldMap = getInParamFieldMap(inparamLevel1);
             inparamTableDeletage.loadInTableDatas(jsonData, inParamFieldMap);
             //更新参数

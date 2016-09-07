@@ -45,11 +45,6 @@ public abstract class AbstractMainPnl extends JPanel {
     protected boolean commonModule = true;
 
 
-    //保存数据属性
-    public static final String INPARAM_PROPNAME = "inparam";
-    public static final String INPARAMS_PROPNAME = "inParams";
-
-
     public static final String TABLE_NAME = "tablename";
 
     //数据源 数据表
@@ -134,7 +129,7 @@ public abstract class AbstractMainPnl extends JPanel {
      */
 
     protected Map<String, JsonObject> getInParamFieldMap(JsonObject inparamLevel1) {
-        JsonArray fieldArray = PubUtil.getJsonObj(inparamLevel1, INPARAMS_PROPNAME, JsonArray.class);
+        JsonArray fieldArray = PubUtil.getJsonObj(inparamLevel1, InparamTableDelegateAbs.INPARAMS_PROPNAME, JsonArray.class);
         if (fieldArray != null) {
             HashMap<String, JsonObject> inParamFieldMap = new HashMap<String, JsonObject>(fieldArray.size());
             for (JsonElement fieldEle : fieldArray) {
@@ -142,6 +137,7 @@ public abstract class AbstractMainPnl extends JPanel {
                 String name = PubUtil.getProp(fieldObj, "name").toLowerCase();
                 inParamFieldMap.put(name, fieldObj);
             }
+            return inParamFieldMap;
         }
         return null;
     }
@@ -194,7 +190,7 @@ public abstract class AbstractMainPnl extends JPanel {
         readOnlyCb.setSelected("true".equals(PubUtil.getProp(inparamObj, "readOnly")));
 
         loadTableBean(inparamObj);
-        JsonObject inparamLevel1 = PubUtil.getJsonObj(inparamObj, INPARAM_PROPNAME, JsonArray.class).get(0).getAsJsonObject();
+        JsonObject inparamLevel1 = PubUtil.getJsonObj(inparamObj, InparamTableDelegateAbs.INPARAM_PROPNAME, JsonArray.class).get(0).getAsJsonObject();
 
         outParamTableDeletate.load(inparamObj);
 

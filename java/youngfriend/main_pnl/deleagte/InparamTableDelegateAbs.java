@@ -18,7 +18,9 @@ import java.util.Map;
 public abstract class InparamTableDelegateAbs {
     public static final int INDEX_FIELD = 0;
     public static final int INDEX_FIELD_DESC = 1;
-
+    //保存数据属性
+    public static final String INPARAM_PROPNAME = "inparam";
+    public static final String INPARAMS_PROPNAME = "inParams";
 
     //字段dto bean 的属性
     public static final String FIELD_NAME_PROPNAME = "field_name";

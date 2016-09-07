@@ -2,6 +2,7 @@ package youngfriend.utils;
 
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
+import com.google.common.primitives.Ints;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -38,6 +39,8 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by xiong on 15/7/16.
@@ -345,5 +348,33 @@ public class PubUtil {
     public static String getUrlWeb(String serverUrl) {
         String webUtl = "http://" + serverUrl.substring(0, serverUrl.indexOf(":")) + ":8080/v6engine";
         return webUtl;
+    }
+
+    public static String getLastCode(String parentCode, String currentLastCode) {
+        if (currentLastCode == null) {
+            return parentCode + "01";
+        }
+        //lastCode delete parentCode
+        String codeIndex = currentLastCode.substring(parentCode.length() );
+        Pattern pattern = Pattern.compile("(\\D*)(\\d+)");
+        Matcher matcher = pattern.matcher(codeIndex);
+        if (matcher.find()) {
+            String startStr = matcher.group(1);
+            String numberStr = matcher.group(2);
+            Integer number = Ints.tryParse(numberStr);
+            return parentCode + startStr + ++number;
+        }
+        return parentCode + "99";
+//
+//        if (last_code != null) {
+//            last_code++;
+//            code_str = String.valueOf(last_code);
+//            int code_len = 2 - (code_str.length() - parent_code.length());
+//            if (code_len != 0) {
+//                for (int i = 0; i < code_len; i++) {
+//                    code_str = "0" + code_str;
+//                }
+//            }
+//        }
     }
 }
