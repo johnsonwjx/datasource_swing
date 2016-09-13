@@ -5,24 +5,21 @@
  */
 package youngfriend.gui;
 
-import youngfriend.utils.PubUtil;
-
-import java.awt.*;
+import youngfriend.App;
 
 /**
  * @author xiong
  */
 public class MaskDlg extends javax.swing.JDialog {
 
-    private static MaskDlg maskDlg;
 
     /**
      * Creates new form MaskDlg
      */
-    public MaskDlg(Window parent) {
-        super(parent, ModalityType.APPLICATION_MODAL);
+    private MaskDlg() {
+        super(App.instance, ModalityType.APPLICATION_MODAL);
         initComponents();
-        setLocationRelativeTo(parent);
+        setLocationRelativeTo(App.instance);
     }
 
     /**
@@ -74,18 +71,20 @@ public class MaskDlg extends javax.swing.JDialog {
     private javax.swing.JProgressBar jProgressBar1;
 
     // End of variables declaration//GEN-END:variables
+
+    private static MaskDlg instance;
+
     public static void mask() {
-        if (maskDlg == null) {
-            maskDlg = new MaskDlg(PubUtil.mainFrame);
+        if (instance == null) {
+            instance = new MaskDlg();
         }
-        maskDlg.setLocationRelativeTo(maskDlg.getParent());
-        maskDlg.setVisible(true);
+        instance.setVisible(true);
     }
 
     public static void unmask() {
-        if (maskDlg == null || !maskDlg.isVisible()) {
-            return;
+        if (instance != null) {
+            instance.dispose();
         }
-        maskDlg.dispose();
+        instance = null;
     }
 }
