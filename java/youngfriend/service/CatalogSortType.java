@@ -1,4 +1,4 @@
-package youngfriend.utils;
+package youngfriend.service;
 
 /**
  * Created by xiong on 2/19/16.

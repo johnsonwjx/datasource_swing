@@ -3,16 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package youngfriend.gui;
+package youngfriend.login;
 
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import youngfriend.App;
 import youngfriend.common.util.StringUtils;
+import youngfriend.gui.WebProxyDlg;
+import youngfriend.service.ServiceInvoker;
 import youngfriend.utils.PubUtil;
-import youngfriend.utils.ServiceInvoker;
 
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -30,8 +31,8 @@ public class LoginDlg extends javax.swing.JDialog {
     /**
      * Creates new form LoginDlg
      */
-    public LoginDlg(Window parent) {
-        super(parent, ModalityType.APPLICATION_MODAL);
+    public LoginDlg() {
+        super(App.instance, ModalityType.APPLICATION_MODAL);
         initComponents();
         init();
     }
@@ -39,7 +40,6 @@ public class LoginDlg extends javax.swing.JDialog {
     private void init() {
         url_tf.setText(PubUtil.serviceConfig.getPro("url"));
         username_tf.setText(PubUtil.serviceConfig.getPro("username"));
-
         webproxy_cb.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent itemEvent) {

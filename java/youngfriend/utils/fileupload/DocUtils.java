@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import youngfriend.common.util.StringUtils;
 import youngfriend.common.util.encoding.Base64;
-import youngfriend.utils.ServiceInvoker;
+import youngfriend.service.ServiceInvoker;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -40,7 +40,7 @@ public class DocUtils {
             HttpClient client = new HttpClient();
             int status = client.executeMethod(post);
             if (status == HttpStatus.SC_OK) {
-                flag=true;
+                flag = true;
             }
             post.releaseConnection();
         } catch (Exception e) {
@@ -62,7 +62,7 @@ public class DocUtils {
         String newFileId = "";
         String fileName = localFile.getName();
         String fileType = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
-        logger.info("从平台下载文件上传至文件服务 : " + localFile.getAbsolutePath() + ":::" + fileName);
+        logger.info("从平台下载文件上传至文件服务 : {}:::{}", localFile.getAbsolutePath(), fileName);
         PostMethod post = new PostMethod(httpUrl + "/fileupload?uploadtype=transfer");
         Part[] parts = {
                 new StringPart("fileid", ""),

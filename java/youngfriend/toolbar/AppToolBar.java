@@ -3,7 +3,7 @@ package youngfriend.toolbar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import youngfriend.App;
-import youngfriend.gui.LoginDlg;
+import youngfriend.login.LoginDlg;
 import youngfriend.moduletree.ModuleTreePnl;
 import youngfriend.utils.PubUtil;
 
@@ -24,7 +24,7 @@ public class AppToolBar extends JToolBar {
     private final ModuleTreePnl moduleTreePnl;
 
     public AppToolBar(ModuleTreePnl moduleTreePnl) {
-        this.moduleTreePnl=moduleTreePnl;
+        this.moduleTreePnl = moduleTreePnl;
         this.setFloatable(false);
         this.setRollover(true);
 
@@ -32,7 +32,6 @@ public class AppToolBar extends JToolBar {
         reloginBtn = createToolBtn("重登录");
         reloadtreeBtn = createToolBtn("重新加载树");
         eidtServer2Btn = createToolBtn("修改2.0服务地址");
-    
         addEvents();
     }
 
@@ -58,6 +57,12 @@ public class AppToolBar extends JToolBar {
                 moduleTreePnl.reBuildTree();
             }
         });
+        eidtServer2Btn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                PubUtil.setServe2Url();
+            }
+        });
     }
 
     private JButton createToolBtn(String text) {
@@ -71,23 +76,9 @@ public class AppToolBar extends JToolBar {
     }
 
 
-    //    private JsonObject getInputParamObj(BeanDto moduleInfoBean) {
-//        String inparam = moduleInfoBean.getValue("inparam");
-//        if (!Strings.isNullOrEmpty(inparam)) {
-//            inparam = new String(Base64.decode(inparam));
-//            JsonElement inparamEle = PubUtil.parseJson(inparam);
-//            if (inparamEle != null) {
-//                return inparamEle.getAsJsonObject();
-//            }
-//        }
-//        return null;
-//    }
-//
-//
-
     private void relogin() {
         App.instance.setVisible(false);
-        LoginDlg loginDlg = new LoginDlg(null);
+        LoginDlg loginDlg = new LoginDlg();
         if (!loginDlg.isOk()) {
             //show exist origin App and return
             App.instance.setVisible(true);

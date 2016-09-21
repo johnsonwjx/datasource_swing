@@ -12,6 +12,9 @@ import org.slf4j.LoggerFactory;
 import youngfriend.App;
 import youngfriend.bean.BeanDto;
 import youngfriend.common.util.StringUtils;
+import youngfriend.gui.InputDlg;
+import youngfriend.login.ServiceConfig;
+import youngfriend.service.ServiceInvoker;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -47,12 +50,12 @@ import java.util.regex.Pattern;
  */
 public class PubUtil {
     private static final Logger logger = LoggerFactory.getLogger(PubUtil.class);
+    public static String TRUESTR = "true";
+    public static String FALSESTR = "false";
     public static ServiceConfig serviceConfig = new ServiceConfig();
-    public static App mainFrame = null;
     public static String accessid;
     public static final JsonParser parser = new JsonParser();
     public final static java.util.List<BeanDto> serviceBeans = new ArrayList();
-
     public static java.util.List<BeanDto> serviceBeans_2;
 
     public static String getService2Url() {
@@ -80,7 +83,7 @@ public class PubUtil {
     }
 
     public static void showMsg(String msg) {
-        showMsg(mainFrame, msg);
+        showMsg(App.instance, msg);
     }
 
     public static JDialog getDialog(Window owner, String title, Component com) {
@@ -93,12 +96,6 @@ public class PubUtil {
         return dialog;
     }
 
-    public static void releaseApp() {
-        if (mainFrame != null) {
-            mainFrame.dispose();
-            mainFrame = null;
-        }
-    }
 
     public static void setWebProxy(String url, String prot) {
         System.setProperty("http.proxyHost", url);
@@ -355,14 +352,15 @@ public class PubUtil {
             return parentCode + "01";
         }
         //lastCode delete parentCode
-        String codeIndex = currentLastCode.substring(parentCode.length() );
+        String codeIndex = currentLastCode.substring(parentCode.length());
         Pattern pattern = Pattern.compile("(\\D*)(\\d+)");
         Matcher matcher = pattern.matcher(codeIndex);
         if (matcher.find()) {
             String startStr = matcher.group(1);
             String numberStr = matcher.group(2);
             Integer number = Ints.tryParse(numberStr);
-            return parentCode + startStr + ++number;
+            number++;
+            return parentCode + startStr + (number < 10 ? ("0" + number) : number);
         }
         return parentCode + "99";
 //
@@ -377,4 +375,28 @@ public class PubUtil {
 //            }
 //        }
     }
+
+    public static void setServe2Url() {
+        String serverurl = PubUtil.getService2Url() == null ? "" : PubUtil.getService2Url();
+        final InputDlg dlg = new InputDlg(App.instance, "2.0服务地址", serverurl) {
+            @Override
+            public boolean validateData(String txt) {
+                if (StringUtils.nullOrBlank(txt)) {
+                    return false;
+                }
+                return true;
+            }
+        };
+        if (dlg.isOk()) {
+            serverurl = dlg.getTxt();
+            try {
+                serviceBeans_2 = ServiceInvoker.getServices2(serverurl);
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+                throw new RuntimeException("获取服务报错" + e.getMessage());
+            }
+        }
+    }
+
 }
+

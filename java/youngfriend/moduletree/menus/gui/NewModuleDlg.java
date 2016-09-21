@@ -3,11 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package youngfriend.gui;
+package youngfriend.moduletree.menus.gui;
 
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
-import com.google.common.primitives.Ints;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -17,26 +16,31 @@ import youngfriend.App;
 import youngfriend.bean.BeanDto;
 import youngfriend.common.util.StringUtils;
 import youngfriend.common.util.net.exception.ServiceInvokerException;
+import youngfriend.moduletree.ModuleTreePnl;
+import youngfriend.service.CatalogServiceUtil;
+import youngfriend.service.ModuleServiceUtil;
+import youngfriend.service.ServiceInvoker;
 import youngfriend.utils.ModuleType;
 import youngfriend.utils.PubUtil;
-import youngfriend.utils.ServiceInvoker;
 
 import javax.swing.ButtonGroup;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.FlowLayout;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.List;
 
+import static youngfriend.moduletree.ModuleTreePnl.MODULE_TOSTRING;
+
 /**
  * @author xiong
  */
 public class NewModuleDlg extends javax.swing.JDialog {
 
+    private final ModuleTreePnl moduleTreePnl;
     public BeanDto service;
     private static final Logger logger = LoggerFactory.getLogger(NewModuleDlg.class);
     private String parent_code;
@@ -56,8 +60,9 @@ public class NewModuleDlg extends javax.swing.JDialog {
     /**
      * Creates new form newModuleDlg
      */
-    public NewModuleDlg(Window parent) {
-        super(parent, ModalityType.APPLICATION_MODAL);
+    public NewModuleDlg(ModuleTreePnl moduleTreePnl) {
+        super(App.instance, ModalityType.APPLICATION_MODAL);
+        this.moduleTreePnl = moduleTreePnl;
         initComponents();
         comTypePnl.setLayout(new FlowLayout(FlowLayout.LEFT));
         ButtonGroup bg = new ButtonGroup();
@@ -75,7 +80,7 @@ public class NewModuleDlg extends javax.swing.JDialog {
                 table_combo.removeAllItems();
             }
         });
-        setLocationRelativeTo(parent);
+        setLocationRelativeTo(this.getParent());
         after();
 
         this.server_combo.addItemListener(new ItemListener() {
@@ -165,7 +170,7 @@ public class NewModuleDlg extends javax.swing.JDialog {
     private void addService2() {
         String serverurl = PubUtil.getService2Url();
         if (StringUtils.nullOrBlank(serverurl)) {
-            serverurl = PubUtil.mainFrame.setServe2Url();
+//            serverurl = App.instance.setServe2Url();
         }
         if (StringUtils.nullOrBlank(serverurl)) {
             server3_radio.setSelected(true);
@@ -215,7 +220,7 @@ public class NewModuleDlg extends javax.swing.JDialog {
         }
         comTypePnl.doLayout();
         parent_tf.setText(String.valueOf(parent));
-        code_tf.setText(PubUtil.getLastCode(parent_code,codes.isEmpty()?null: codes.get(codes.size() - 1)));
+        code_tf.setText(PubUtil.getLastCode(parent_code, codes.isEmpty() ? null : codes.get(codes.size() - 1)));
         this.setVisible(true);
     }
 
@@ -274,7 +279,7 @@ public class NewModuleDlg extends javax.swing.JDialog {
             return;
         }
         JsonObject obj = getObj();
-        dto = new BeanDto(obj, App.MODULE_TOSTRING);
+        dto = new BeanDto(obj, MODULE_TOSTRING);
         String tablename = getTable();
         JsonObject jsonData = new JsonObject();
         JsonArray inparamArr = new JsonArray();
@@ -289,8 +294,8 @@ public class NewModuleDlg extends javax.swing.JDialog {
         jsonData.add("inparam", inparamArr);
         String moduleid = null;
         try {
-            moduleid = ServiceInvoker.saveModule(null, PubUtil.mainFrame.getProjectid(), dto.getValue("name"), dto.getValue("description"),//
-                    tablename, jsonData.toString(), getServerVersion(), getModuleType());
+            moduleid = ModuleServiceUtil.saveModule(null, moduleTreePnl.getProjectId(), dto.getValue("name"), dto.getValue("description"),//
+                    "", jsonData.toString(), getServerVersion(), getModuleType());
         } catch (ServiceInvokerException e) {
             Throwables.propagate(e);
         }
@@ -298,8 +303,8 @@ public class NewModuleDlg extends javax.swing.JDialog {
 
         String data = null;
         try {
-            data = ServiceInvoker.saveCatalog(null, obj.get("name").getAsString(), dto.getValue("code"),//
-                    obj.get("description").getAsString(), null, PubUtil.mainFrame.getProjectid(), moduleid);
+            data = CatalogServiceUtil.saveCatalog(null, obj.get("name").getAsString(), dto.getValue("code"),//
+                    obj.get("description").getAsString(), null, moduleTreePnl.getProjectId(), moduleid);
             JsonElement jsonElement = PubUtil.parseJson(data);
             if (jsonElement == null) {
                 throw new RuntimeException("未知错误");
@@ -316,7 +321,7 @@ public class NewModuleDlg extends javax.swing.JDialog {
         } catch (ServiceInvokerException e) {
             logger.error(e.getMessage(), e);
             try {
-                ServiceInvoker.delModule(moduleid);
+                ModuleServiceUtil.delModule(moduleid);
             } catch (ServiceInvokerException e1) {
                 Throwables.propagate(e1);
             }

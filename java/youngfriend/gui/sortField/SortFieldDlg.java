@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package youngfriend.gui;
+package youngfriend.gui.sortField;
 
+import youngfriend.App;
 import youngfriend.bean.BeanDto;
 import youngfriend.common.util.StringUtils;
 import youngfriend.main_pnl.deleagte.InparamTableDelegateAbs;
@@ -16,6 +17,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,9 +34,8 @@ public class SortFieldDlg extends javax.swing.JDialog {
     /**
      * Creates new form SortFieldDlg
      */
-    public SortFieldDlg(java.awt.Frame parent) {
-        super(parent, ModalityType.APPLICATION_MODAL);
-        setLocationRelativeTo(parent);
+    public SortFieldDlg() {
+        super(App.instance, ModalityType.APPLICATION_MODAL);
         initComponents();
         src_list.setModel(fieldModel);
         src_list.addMouseListener(new MouseAdapter() {
@@ -65,6 +67,7 @@ public class SortFieldDlg extends javax.swing.JDialog {
                 onOk();
             }
         });
+        setLocationRelativeTo(getOwner());
     }
 
     public void edit(List<BeanDto> fields, String sortfields) {

@@ -57,9 +57,9 @@ public abstract class InparamTableDelegateAbs {
 
     /**
      * @param jsonData
-     * @param inparamLevel1
+     * @param inParamFieldMap
      */
-    public abstract void loadInTableDatas(JsonObject jsonData, Map<String, JsonObject> inparamLevel1);
+    public abstract void loadInTableDatas(JsonObject jsonData, Map<String, JsonObject> inParamFieldMap);
 
     public JTable getTable() {
         return table;

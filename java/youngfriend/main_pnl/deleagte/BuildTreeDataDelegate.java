@@ -143,7 +143,7 @@ public class BuildTreeDataDelegate {
         codeField_tf.setText(code);
         rootName_tf.setText(root);
         nameField_tf.setText(name);
-        codeField_tf.setText(codeInc);
+        codeInc_tf.setText(codeInc);
     }
 
     public void loadBuildTreeBean(BeanDto field) {

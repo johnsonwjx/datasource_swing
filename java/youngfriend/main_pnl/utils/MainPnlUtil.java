@@ -23,5 +23,4 @@ public class MainPnlUtil {
         return model;
     }
 
-
 }

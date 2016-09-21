@@ -3,30 +3,30 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package youngfriend.gui;
+package youngfriend.moduletree.menus.gui;
 
+import youngfriend.App;
 import youngfriend.bean.BeanDto;
-import youngfriend.utils.CatalogSortType;
+import youngfriend.service.CatalogSortType;
 import youngfriend.utils.PubUtil;
 
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeSelectionModel;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
  * @author xiong
  */
-public class SortCatalogDlg extends javax.swing.JDialog {
+public class MoveNodeDlg extends javax.swing.JDialog {
     private boolean ok = false;
 
     /**
      * Creates new form TreeSelectDlg
      */
-    public SortCatalogDlg(Window parent, JTree sourceTree, final BeanDto sourceDto) {
-        super(parent, ModalityType.APPLICATION_MODAL);
+    public MoveNodeDlg(JTree sourceTree) {
+        super(App.instance, ModalityType.APPLICATION_MODAL);
         initComponents();
         type_btn_group.add(pre);
         type_btn_group.add(leaf);
@@ -34,7 +34,6 @@ public class SortCatalogDlg extends javax.swing.JDialog {
         tree.setModel(sourceTree.getModel());
         tree.setRootVisible(false);
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        setLocationRelativeTo(parent);
         PubUtil.registerDlgBtn(this, save_btn, cancel_btn, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -55,6 +54,7 @@ public class SortCatalogDlg extends javax.swing.JDialog {
                 dispose();
             }
         });
+        setLocationRelativeTo(getOwner());
     }
 
     public BeanDto getSelectDto() {
@@ -133,6 +133,9 @@ public class SortCatalogDlg extends javax.swing.JDialog {
     private javax.swing.JTree tree;
     private javax.swing.ButtonGroup type_btn_group;
 
+    // End of variables declaration//GEN-END:variables
+
+
     public boolean isOk() {
         return ok;
     }
@@ -147,5 +150,4 @@ public class SortCatalogDlg extends javax.swing.JDialog {
         }
         return sortType;
     }
-    // End of variables declaration//GEN-END:variables
 }

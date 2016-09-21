@@ -8,10 +8,11 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import youngfriend.App;
 import youngfriend.bean.BeanDto;
 import youngfriend.gui.ListDlg;
 import youngfriend.utils.PubUtil;
-import youngfriend.utils.ServiceInvoker;
+import youngfriend.service.ServiceInvoker;
 
 import javax.swing.JButton;
 import javax.swing.JTextField;
@@ -38,7 +39,7 @@ public class V6TypeDelegate {
         /**
          * 初始化 v6type 选择界面
          */
-        v6typeDlg = new ListDlg(PubUtil.mainFrame);
+        v6typeDlg = new ListDlg(App.instance);
         try {
             String work_dic_v6type = ServiceInvoker.getWork_dic_v6type();
             Document document = DocumentHelper.parseText(work_dic_v6type);

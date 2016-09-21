@@ -4,8 +4,8 @@ import com.google.gson.JsonObject;
 import org.dom4j.Element;
 import youngfriend.bean.BeanDto;
 import youngfriend.gui.ListDlg;
+import youngfriend.service.ServiceInvoker;
 import youngfriend.utils.PubUtil;
-import youngfriend.utils.ServiceInvoker;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
@@ -37,15 +37,16 @@ public class GetInparamFieldsUtil {
             JsonObject object = new JsonObject();
             for (Element para : paras) {
                 String name = para.attributeValue("name");
-                String text = para.getText();
+                String text = para.getText().toLowerCase();
                 object.addProperty(name.toLowerCase(), text);
             }
-            object.addProperty(FIELD_NAME_PROPNAME, object.get(FIELD_NAME_PROPNAME).getAsString().toLowerCase());
+            object.addProperty(FIELD_NAME_PROPNAME, object.get(FIELD_NAME_PROPNAME).getAsString());
             BeanDto fielddto = new BeanDto(object, FIELD_NAME_PROPNAME);
             model.addRow(new Object[]{fielddto, fielddto.getValue(FIELD_DESC_PROPNAME)});
             fieldListDlg.addItem(fielddto);
             fields.add(fielddto);
         }
+        model.fireTableDataChanged();
     }
 
     /**
@@ -82,6 +83,7 @@ public class GetInparamFieldsUtil {
             fieldListDlg.addItem(fielddto);
             fields.add(fielddto);
         }
+        model.fireTableDataChanged();
     }
 
     /**
@@ -93,14 +95,15 @@ public class GetInparamFieldsUtil {
      * @param fields
      * @throws Exception
      */
-    public static void initTableDataService(JTable table, BeanDto tablebean, ListDlg fieldListDlg, List<BeanDto> fields) throws Exception {
+    public static void initTableDataService(JTable table, BeanDto tablebean, ListDlg fieldListDlg, List<BeanDto> fields, boolean isVersion2) throws Exception {
         DefaultTableModel model = MainPnlUtil.clearTable(table);
         String value = tablebean.getValue("value");
-        List<BeanDto> fieldtos = ServiceInvoker.getFields(value, !PubUtil.mainFrame.isVersion2());
+        List<BeanDto> fieldtos = ServiceInvoker.getFields(value, !isVersion2);
         for (BeanDto fielddto : fieldtos) {
             model.addRow(new Object[]{fielddto, fielddto.getValue(FIELD_DESC_PROPNAME)});
             fieldListDlg.addItem(fielddto);
             fields.add(fielddto);
         }
+        model.fireTableDataChanged();
     }
 }

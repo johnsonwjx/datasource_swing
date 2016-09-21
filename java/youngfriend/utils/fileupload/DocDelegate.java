@@ -3,6 +3,7 @@ package youngfriend.utils.fileupload;
 import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import youngfriend.App;
 import youngfriend.common.util.StringUtils;
 import youngfriend.gui.InputDlg;
 import youngfriend.utils.PubUtil;
@@ -48,7 +49,7 @@ public class DocDelegate {
                         return;
                     }
                 }
-                int option = fileUploadChooser.showOpenDialog(PubUtil.mainFrame);
+                int option = fileUploadChooser.showOpenDialog(App.instance);
                 if (option == JFileChooser.APPROVE_OPTION) {
                     //确定后只缓存文件,保存组件是才上传
                     file = fileUploadChooser.getSelectedFile();
@@ -59,7 +60,7 @@ public class DocDelegate {
 
             private boolean initUploadFileWebUrl() {
                 //测试web地址有没有文件的web server
-                InputDlg inputDlg = new InputDlg(PubUtil.mainFrame, "上传到web服务器地址", PubUtil.getUrlWeb(PubUtil.serviceConfig.getPro("url")));
+                InputDlg inputDlg = new InputDlg(App.instance, "上传到web服务器地址", PubUtil.getUrlWeb(PubUtil.serviceConfig.getPro("url")));
                 if (!inputDlg.isOk()) {
                     //  取消操作
                     return false;
@@ -85,7 +86,7 @@ public class DocDelegate {
         downloadBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                int option = fieldDownloadChooser.showSaveDialog(PubUtil.mainFrame);
+                int option = fieldDownloadChooser.showSaveDialog(App.instance);
                 if (option == JFileChooser.APPROVE_OPTION) {
 
                     try {
@@ -106,8 +107,12 @@ public class DocDelegate {
         docId = PubUtil.getProp(jsonData, "docId");
         docName = PubUtil.getProp(jsonData, "docName");
         file = null;//only upload a new file have a value
+        showBtn(docId, docName);
+    }
+
+    private void showBtn(String docId, String docName) {
         if (StringUtils.nullOrBlank(docId)) {
-            downloadBtn.setText("上传组件文档");
+            uploadBtn.setText("上传组件文档");
             downloadBtn.setVisible(false);
         } else {
             uploadBtn.setText("重新上传");
@@ -129,5 +134,6 @@ public class DocDelegate {
         jsonData.addProperty("docId", docId);
         jsonData.addProperty("docName", docName);
 
+        showBtn(docId, docName);
     }
 }

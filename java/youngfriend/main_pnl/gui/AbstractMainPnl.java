@@ -1,4 +1,4 @@
-package youngfriend.main_pnl;
+package youngfriend.main_pnl.gui;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -6,30 +6,28 @@ import com.google.gson.JsonObject;
 import org.dom4j.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import youngfriend.App;
 import youngfriend.bean.BeanDto;
 import youngfriend.gui.ListDlg;
+import youngfriend.main_pnl.MainHeaderPnl;
 import youngfriend.main_pnl.deleagte.InparamTableDelegateAbs;
 import youngfriend.main_pnl.deleagte.OutParamTableDeletate;
 import youngfriend.main_pnl.utils.GetInparamFieldsUtil;
-import youngfriend.utils.ModuleType;
 import youngfriend.utils.PubUtil;
-import youngfriend.utils.ServiceInvoker;
 import youngfriend.utils.ServiceType;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static youngfriend.main_pnl.MainPnlFactory.TABLE_NAME;
 
 
 /**
@@ -41,61 +39,30 @@ public abstract class AbstractMainPnl extends JPanel {
     //TODO 抽出接口
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    //是否通用组件
-    protected boolean commonModule = true;
-
-
-    public static final String TABLE_NAME = "tablename";
-
-    //数据源 数据表
-    String tablebeanProname = "table_name";
-
-    protected BeanDto serviceBean;
-
-
-    JComboBox table_combo;
-    DefaultComboBoxModel table_combo_model;
-    protected BeanDto tableBean;
-
-
-    protected boolean init = false;
-    protected ServiceType servicetype = ServiceType.SERVICE3;
 
     protected OutParamTableDeletate outParamTableDeletate;
 
     protected InparamTableDelegateAbs inparamTableDeletage;
-    protected ListDlg fieldListDlg = new ListDlg(PubUtil.mainFrame);
-    protected List<BeanDto> fields = new ArrayList<BeanDto>();
-    private JCheckBox readOnlyCb;
-    private Map<BeanDto, List<Element>> tablesMap = new HashMap<BeanDto, List<Element>>();
 
+    private JCheckBox readOnlyCb;
+
+    private MainHeaderPnl mainHeaderPnl;
+    private BeanDto moduleInfoBean;
 
     /**
      * ----------------------------------------------------
      * 暴露方法
      * ----------------------------------------------------
      */
+
     public JTable getTable() {
         return inparamTableDeletage.getTable();
     }
 
-    public String getModuleAlias() {
-        Object selectedItem = table_combo.getSelectedItem();
-        if (selectedItem == null) {
-            return "";
-        }
-        BeanDto dto = (BeanDto) selectedItem;
-        return dto.getValue(tablebeanProname);
-    }
-
-    public void clear() {
-        this.serviceBean = null;
-        table_combo.removeAllItems();
-    }
 
     public void saveParam(String modulelabel, JsonObject jsonData) {
         jsonData.addProperty("readOnly", readOnlyCb.isSelected() ? "true" : "false");
-        String tablename = tableBean.getValue(tablebeanProname);
+        String tablename = mainHeaderPnl.getTablename();
         //入口参数表格保存处理
         inparamTableDeletage.save(jsonData);
         JsonArray inparamLevel2 = inparamTableDeletage.getInparamLevel2();
@@ -106,21 +73,12 @@ public abstract class AbstractMainPnl extends JPanel {
         if (outParamsLevel2 != null) {
             saveInorOutParamLevel1(tablename, modulelabel, jsonData, outParamsLevel2, false);
         }
-
         jsonData.addProperty(TABLE_NAME, tablename);
         jsonData.addProperty("hiddenfields", "");
     }
 
     public abstract void loadData(JsonObject jsonData) throws Exception;
 
-
-    public boolean checkValidate() {
-        if (tableBean == null) {
-            PubUtil.showMsg("表格为空,请选择");
-            return false;
-        }
-        return true;
-    }
 
     /**
      * ----------------------------------------------------------------------------
@@ -134,7 +92,7 @@ public abstract class AbstractMainPnl extends JPanel {
             HashMap<String, JsonObject> inParamFieldMap = new HashMap<String, JsonObject>(fieldArray.size());
             for (JsonElement fieldEle : fieldArray) {
                 JsonObject fieldObj = fieldEle.getAsJsonObject();
-                String name = PubUtil.getProp(fieldObj, "name").toLowerCase();
+                String name = PubUtil.getProp(fieldObj, "name");
                 inParamFieldMap.put(name, fieldObj);
             }
             return inParamFieldMap;
@@ -142,14 +100,21 @@ public abstract class AbstractMainPnl extends JPanel {
         return null;
     }
 
+    protected ListDlg fieldListDlg = new ListDlg(App.instance);
+    protected List<BeanDto> fields = new ArrayList<BeanDto>();
 
     /**
      * 表格 选择 初始化 入口参数表字段 , 选择字段fieldListDlg,fields
      *
-     * @param tablebean
+     * @param moduleInfoBean
+     * @param mainHeaderPnl
+     * @param commonModule
      */
-    private void tableSelect(BeanDto tablebean) {
-        if (tablebean == null) {
+    public void tableSelect(BeanDto moduleInfoBean, MainHeaderPnl mainHeaderPnl, boolean commonModule, boolean isVersion2) {
+        this.mainHeaderPnl = mainHeaderPnl;
+        this.moduleInfoBean = moduleInfoBean;
+        BeanDto tableBean = mainHeaderPnl.getTableBean();
+        if (tableBean == null) {
             inparamTableDeletage.clear();
             //清空字段
             fieldListDlg.clear();
@@ -159,24 +124,23 @@ public abstract class AbstractMainPnl extends JPanel {
             try {
                 JTable table = inparamTableDeletage.getTable();
                 if (!commonModule) {
-                    GetInparamFieldsUtil.initTableDataService(table, tablebean, fieldListDlg, fields);
+                    GetInparamFieldsUtil.initTableDataService(table, tableBean, fieldListDlg, fields, isVersion2);
                 } else {
+                    ServiceType servicetype = mainHeaderPnl.getServicetype();
                     if (servicetype == ServiceType.SERVICE2_CODECENTER) {
-                        GetInparamFieldsUtil.initTableDataCodetableServer2(table, tablebean, fieldListDlg, fields);
+                        GetInparamFieldsUtil.initTableDataCodetableServer2(table, tableBean, fieldListDlg, fields);
                     } else {
+                        Map<BeanDto, List<Element>> tablesMap = mainHeaderPnl.getTablesMap();
                         //Service3 Service2 都通用 这个 取字段了
-                        GetInparamFieldsUtil.initTableDataCommon(table, tablesMap, tablebean, fieldListDlg, fields);
+                        GetInparamFieldsUtil.initTableDataCommon(table, tablesMap, tableBean, fieldListDlg, fields);
                     }
                 }
-
             } catch (Exception e) {
-                PubUtil.showMsg("获取表格数据错误");
-                logger.error(e.getMessage());
-
+                throw new RuntimeException("获取表格数据失败" + e.getMessage());
             }
         }
-        this.tableBean = tablebean;
     }
+
 
     /**
      * 公共导入数据
@@ -188,27 +152,9 @@ public abstract class AbstractMainPnl extends JPanel {
      */
     protected JsonObject commomLoadData(JsonObject inparamObj, JCheckBox readOnlyCb) throws Exception {
         readOnlyCb.setSelected("true".equals(PubUtil.getProp(inparamObj, "readOnly")));
-
-        loadTableBean(inparamObj);
         JsonObject inparamLevel1 = PubUtil.getJsonObj(inparamObj, InparamTableDelegateAbs.INPARAM_PROPNAME, JsonArray.class).get(0).getAsJsonObject();
-
         outParamTableDeletate.load(inparamObj);
-
         return inparamLevel1;
-    }
-
-    /**
-     * load入 已选择的 表格
-     *
-     * @param inparamObj
-     */
-    private void loadTableBean(JsonObject inparamObj) {
-        String tablename = PubUtil.getProp(inparamObj, TABLE_NAME);
-        BeanDto tableBeanTemp = PubUtil.getComboItem(table_combo, tablebeanProname, tablename);
-        if (tableBeanTemp == null) {
-            throw new IllegalArgumentException("没找到已设置表格:" + tablename);
-        }
-        table_combo.setSelectedItem(tableBeanTemp);
     }
 
 
@@ -230,74 +176,17 @@ public abstract class AbstractMainPnl extends JPanel {
     /**
      * UI控件完成后
      */
-    protected void afterUi(final JComboBox table_combo, final JTable outTable, JButton outParamsAddBtn, JButton outParamsDelBtn, JCheckBox readOnlyCb) {
+    protected void afterUi(final JTable outTable, JButton outParamsAddBtn, JButton outParamsDelBtn, JCheckBox readOnlyCb) {
         //公共共同控件
-        this.table_combo = table_combo;
         this.readOnlyCb = readOnlyCb;
-        table_combo_model = new DefaultComboBoxModel();
-        table_combo.setModel(table_combo_model);
-        table_combo.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent itemEvent) {
-                if (itemEvent.getStateChange() == ItemEvent.DESELECTED) {
-                    tableSelect(null);
-                } else {
-                    tableSelect((BeanDto) table_combo.getSelectedItem());
-                }
-
-            }
-        });
         outParamTableDeletate = new OutParamTableDeletate(outTable, outParamsAddBtn, outParamsDelBtn);
-
-        if (commonModule) {
-        } else {
-            tablebeanProname = "value";
-        }
-
     }
 
+    public boolean checkValidate() {
+        return true;
+    }
 
-    public void serviceSelect(BeanDto dto) throws Exception {
-        try {
-            init = true;
-            this.clear();
-            tablesMap.clear();
-            this.serviceBean = dto;
-            if (serviceBean == null) {
-                return;
-            }
-            String servicename = serviceBean.getValue("name");
-            List<BeanDto> lst = null;
-            if (commonModule) {
-                String tableXML = null;
-                if (PubUtil.mainFrame.isVersion2()) {
-                    tableXML = ServiceInvoker.getTables(servicename, PubUtil.getService2Url());
-                    if ("codecenter".equals(servicename)) {
-                        servicetype = ServiceType.SERVICE2_CODECENTER;
-                        lst = ServiceInvoker.parseTable(servicename, tableXML, null);
-                    } else {
-                        servicetype = ServiceType.SERVICE2;
-
-                        lst = ServiceInvoker.parseTable(servicename, tableXML, tablesMap);
-                    }
-                } else {
-                    servicetype = ServiceType.SERVICE3;
-                    tableXML = ServiceInvoker.getTables(serviceBean.getValue("name"));
-                    lst = ServiceInvoker.parseTable(servicename, tableXML, tablesMap);
-                }
-                //通用的 设置 表格
-            } else {
-                lst = ServiceInvoker.getDataSource(servicename, !PubUtil.mainFrame.isVersion2(), getModuleType());
-            }
-            if (lst != null && !lst.isEmpty()) {
-                for (BeanDto table : lst) {
-                    table_combo.addItem(table);
-                }
-
-            }
-        } finally {
-            init = false;
-        }
+    public void clear() {
     }
 
 
@@ -315,7 +204,7 @@ public abstract class AbstractMainPnl extends JPanel {
         inparamLevel1.addProperty("name", tablename);
         inparamLevel1.addProperty("label", modulelabel);
 
-        inparamLevel1.addProperty("moduleid", PubUtil.mainFrame.getModuneInfo() == null ? "" : PubUtil.mainFrame.getModuneInfo().getValue("id"));
+        inparamLevel1.addProperty("moduleid", moduleInfoBean.getValue("id"));
         inparamLevel1.addProperty(isInparam ? "inParamType" : "outParamType", "definite");
         inparamLevel1.add(isInparam ? "inParams" : "outParams", fieldinParams);
         inparamLevel1.addProperty("maxLevel", "20");
@@ -333,6 +222,4 @@ public abstract class AbstractMainPnl extends JPanel {
      */
     abstract void saveInparamLevel2Custom(JsonObject inparamLevel1);
 
-
-    protected abstract ModuleType getModuleType();
 }

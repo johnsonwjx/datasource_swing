@@ -1,10 +1,7 @@
 package youngfriend.main_pnl.deleagte;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import youngfriend.bean.BeanDto;
 import youngfriend.bean.CheckBoxHeader;
 import youngfriend.common.util.StringUtils;
@@ -19,7 +16,6 @@ import java.util.Map;
  * Created by xiong on 9/2/16.
  */
 public class InparamTableDelegateButtonAbs extends InparamTableDelegateAbs {
-    private static final Logger logger = LoggerFactory.getLogger(InparamTableDelegateButtonAbs.class);
     public static final int INDEX_INPARAM = 2;
     public static final int INDEX_PARAM_VALUE = 3;
 
@@ -69,20 +65,17 @@ public class InparamTableDelegateButtonAbs extends InparamTableDelegateAbs {
     }
 
     @Override
-    public void loadInTableDatas(JsonObject jsonData, Map<String, JsonObject> inparamLevel1) {
+    public void loadInTableDatas(JsonObject jsonData, Map<String, JsonObject> inParamFieldMap) {
         JsonObject fieldsdescJsonObj = PubUtil.getJsonObj(jsonData, "fields_desc", JsonObject.class);
         int rowCount = table.getRowCount();
         for (int i = 0; i < rowCount; i++) {
             BeanDto field = (BeanDto) table.getValueAt(i, INDEX_FIELD);
             String fieldName = field.getValue(FIELD_NAME_PROPNAME);
 
-            boolean inparam = isInparam(inparamLevel1, fieldName, null);
+            boolean inparam = isInparam(inParamFieldMap, fieldName, null);
             String inparamDefaultValue = "";
             if (inparam) {
-                JsonElement defaultValue_Ele = inparamLevel1.get(fieldName).get("defaultValue");
-                if (!defaultValue_Ele.isJsonNull()) {
-                    inparamDefaultValue = defaultValue_Ele.getAsString();
-                }
+                inparamDefaultValue = PubUtil.getProp(inParamFieldMap.get(fieldName), "defaultValue");
             }
             //获取自定义label,如果没有用默认的
             String desc = PubUtil.getProp(fieldsdescJsonObj, fieldName);
@@ -98,7 +91,8 @@ public class InparamTableDelegateButtonAbs extends InparamTableDelegateAbs {
 
     @Override
     protected void saveParamGetByInTable(BeanDto field, int row) {
-        saveParamHandleField(field, row, INDEX_INPARAM, "", null);
+        String defaultValue = (String) table.getValueAt(row, INDEX_PARAM_VALUE);
+        saveParamHandleField(field, row, INDEX_INPARAM, defaultValue, null);
         String fieldName = field.getValue(InparamTableDelegateAbs.FIELD_NAME_PROPNAME);
         String fieldDesc = field.getValue(InparamTableDelegateAbs.FIELD_DESC_PROPNAME);
         String field_descStr = (String) table.getValueAt(row, INDEX_FIELD_DESC);

@@ -1,4 +1,4 @@
-package youngfriend.utils;
+package youngfriend.service;
 
 import com.google.common.base.Strings;
 import com.google.gson.JsonArray;
@@ -11,13 +11,13 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import youngfriend.App;
 import youngfriend.bean.BeanDto;
 import youngfriend.common.util.StringUtils;
-import youngfriend.common.util.encoding.Base64;
 import youngfriend.common.util.net.ServiceInvokerUtil;
 import youngfriend.common.util.net.exception.ServiceInvokerException;
 import youngfriend.main_pnl.deleagte.InparamTableDelegateAbs;
+import youngfriend.utils.ModuleType;
+import youngfriend.utils.PubUtil;
 
 import java.net.InetAddress;
 import java.net.URL;
@@ -35,9 +35,7 @@ import java.util.Set;
  * Created by xiong on 15/7/16.
  */
 public class ServiceInvoker {
-    public static final String COMMOM_CALL = "/datasource/commonsimple.do";
-    public static final String SERVICE_CALL = "/datasource/customservicedatasource.do";
-    public static final String BTN_CALL = "/datasource/commonbuttonevent.do";
+
     private static final Logger logger = LoggerFactory.getLogger(ServiceInvoker.class);
 
     public static Hashtable<String, String> serviceInvoke(Hashtable<String, String> inparam) throws ServiceInvokerException {
@@ -287,7 +285,7 @@ public class ServiceInvoker {
                 java.util.List<Element> paras = tableEle.elements();
                 JsonObject object = new JsonObject();
                 for (Element para : paras) {
-                    object.addProperty(para.getName().toLowerCase(), para.getText());
+                    object.addProperty(para.getName(), para.getText());
                 }
                 String table_name = tableEle.elementText("alias");
                 String table_desc = tableEle.elementText("name");
@@ -416,80 +414,6 @@ public class ServiceInvoker {
     }
 
 
-    public static String getModule(String moduleid) throws ServiceInvokerException {
-        Hashtable<String, String> tab = new Hashtable<String, String>();
-        tab.put("service", "module2.module.get");
-        tab.put("id", moduleid);
-        tab = serviceInvoke(tab);
-        return tab.get("redata");
-    }
-
-    public static void delModule(String moduleid) throws ServiceInvokerException {
-        Hashtable<String, String> tab = new Hashtable<String, String>();
-        tab.put("service", "module2.module.del");
-        tab.put("ids", moduleid);
-        serviceInvoke(tab);
-    }
-
-    public static void delCatalog(String id) throws ServiceInvokerException {
-        Hashtable<String, String> tab = new Hashtable<String, String>();
-        tab.put("service", "module2.catalog.del");
-        tab.put("id", id);
-        serviceInvoke(tab);
-    }
-
-
-    public static String saveModule(String id, String projectcode, String name, String desc,//
-                                    String alias, String jsonData, String serververson, ModuleType moduleType) throws ServiceInvokerException {
-        JsonArray dataArray = new JsonArray();
-        JsonObject object = new JsonObject();
-        if (!Strings.isNullOrEmpty(id)) {
-            object.addProperty("id", id);
-        }
-        if (moduleType != null) {
-            switch (moduleType) {
-                case COMMON:
-                    object.addProperty("callparam", COMMOM_CALL);
-                    break;
-                case SERVICE:
-                    object.addProperty("callparam", SERVICE_CALL);
-                    break;
-                case BUTTON:
-                case COMMON_UPDATE:
-                    object.addProperty("callparam", BTN_CALL);
-                    break;
-            }
-        }
-
-        if (serververson != null) {
-            object.addProperty("typed", serververson);
-        }
-
-        if (name != null) {
-            object.addProperty("name", name);
-        }
-        //modulealias保存
-        object.addProperty("modulealias", alias);
-        if (moduleType != null) {
-            object.addProperty("typee", moduleType.getValue());
-        }
-        if (desc != null) {
-            object.addProperty("description", desc);
-        }
-        if (jsonData != null) {
-            object.addProperty("inparam", Base64.encode(jsonData.getBytes()));
-        }
-        dataArray.add(object);
-        Hashtable<String, String> tab = new Hashtable<String, String>();
-        tab.put("service", "module2.module.add");
-        tab.put("projectcode", projectcode);
-        String data = dataArray.toString();
-        tab.put("data", data);
-        tab = serviceInvoke(tab);
-        return tab.get("redata");
-    }
-
-
     /**
      * 取项目
      *
@@ -504,91 +428,6 @@ public class ServiceInvoker {
         return reTab.get("redata");
     }
 
-    //    String id = inMessage.getValue("id");
-//    String moduleid = inMessage.getValue("moduleid");
-//    String code = inMessage.getValue("code");
-//    String accessid = inMessage.getValue("accessid");
-//    String alias =  inMessage.getValue("alias");
-//    String onlyhasmodule = inMessage.getValue("onlyhasmodule");
-//    String onlytype = inMessage.getValue("onlytype");
-//    String onlycatalog = inMessage.getValue("onlycatalog");
-//    String onlymodule = inMessage.getValue("onlymodule");
-//    String projectcode = inMessage.getValue("projectcode");
-    public static String form_catalog_get(String projectcode) throws ServiceInvokerException {
-        Hashtable<String, String> sendTab = new Hashtable<String, String>();
-        sendTab.put("service", "module2.catalog.get");
-        sendTab.put("projectcode", projectcode);
-        sendTab.put("onlycatalog", "T");
-        sendTab.put("code", "04");
-        Hashtable<String, String> reTab = serviceInvoke(sendTab);
-        return reTab.get("redata");
-    }
-
-
-    public static String btnmodule_catalog_get(String projectcode) throws ServiceInvokerException {
-        Hashtable<String, String> sendTab = new Hashtable<String, String>();
-        sendTab.put("service", "module2.catalog.get");
-        sendTab.put("projectcode", projectcode);
-        sendTab.put("onlycatalog", "T");
-        sendTab.put("code", "06");
-        Hashtable<String, String> reTab = serviceInvoke(sendTab);
-        return reTab.get("redata");
-    }
-
-
-    public static String module_catalog_get(String id) throws ServiceInvokerException {
-        Hashtable<String, String> sendTab = new Hashtable<String, String>();
-        sendTab.put("service", "module2.catalog.get");
-        sendTab.put("id", id);
-        sendTab.put("onlytype", "T");
-//        sendTab.put("onlycatalog", "T");
-        Hashtable<String, String> reTab = serviceInvoke(sendTab);
-        return reTab.get("redata");
-    }
-
-    public static String module_catalog_getByModuleid(String moduleid) throws ServiceInvokerException {
-        Hashtable<String, String> sendTab = new Hashtable<String, String>();
-        sendTab.put("service", "module2.catalog.get");
-        sendTab.put("moduleid", moduleid);
-        sendTab.put("onlytype", "T");
-//        sendTab.put("onlycatalog", "T");
-        Hashtable<String, String> reTab = serviceInvoke(sendTab);
-        return reTab.get("redata");
-    }
-
-
-    public static String saveCatalog(String id, String name, String code, String description, String catalogalias, String projectcode, String moduleid) throws ServiceInvokerException {
-        JsonArray data = new JsonArray();
-        JsonObject obj = new JsonObject();
-        if (!Strings.isNullOrEmpty(id)) {
-            obj.addProperty("id", id);
-        }
-        if (name != null) {
-            obj.addProperty("name", name);
-        }
-        if (description != null) {
-            obj.addProperty("description", description);
-        }
-        if (code != null) {
-            obj.addProperty("code", code);
-        }
-        if (catalogalias != null) {
-            obj.addProperty("catalogalias", catalogalias);
-        }
-        if (moduleid != null) {
-            obj.addProperty("moduleid", moduleid);
-        }
-        data.add(obj);
-        Hashtable<String, String> sendTab = new Hashtable<String, String>();
-        sendTab.put("service", "module2.catalog.new");
-        if (projectcode != null) {
-            sendTab.put("projectcode", projectcode);
-        }
-        sendTab.put("data", data.toString());
-        Hashtable<String, String> reTab = serviceInvoke(sendTab);
-        return reTab.get("redata");
-    }
-
 
     public static String getWork_dic_v6type() throws ServiceInvokerException {
         Hashtable<String, String> map = new Hashtable<String, String>();
@@ -598,28 +437,6 @@ public class ServiceInvoker {
         return result.get("XML");
     }
 
-    //id aimid type 0-下一级 1-平级上面 2-平级下面）
-    public static void sortCatalogTree(String id, String aimid, CatalogSortType sortType) throws ServiceInvokerException {
-        Hashtable<String, String> map = new Hashtable<String, String>();
-        map.put("service", "module2.catalog.sortcode");
-        map.put("id", id);
-        map.put("aimid", aimid);
-        map.put("type", sortType.getValue());
-        serviceInvoke(map);
-    }
-
-    public static BeanDto moduleCopy(String catalogid, String parentCode) throws ServiceInvokerException {
-        Hashtable<String, String> map = new Hashtable<String, String>();
-        map.put("service", "module2.module.copy");
-        map.put("catalogid", catalogid);
-        map.put("parentCode", parentCode);
-        map = serviceInvoke(map);
-        String catalog = map.get("catalog");
-        JsonElement cataLogElement = new JsonParser().parse(catalog);
-        BeanDto dto = new BeanDto(cataLogElement.getAsJsonObject(), App.MODULE_TOSTRING);
-        dto.setItem("ismodule", "true");
-        return dto;
-    }
 
     /**
      * 获取 文件 类型

@@ -31,9 +31,9 @@ public abstract class InparamTableDelegateCommonAbs extends InparamTableDelegate
     //合计
     public static final BeanDto[] SUMVALUES = new BeanDto[]{null, new BeanDto("合计", "sum")};
     //固定值
-    public static final BeanDto[] FIXEDVALUES = new BeanDto[]{null, new BeanDto("当前日期", "currentDate"), new BeanDto("操作用户ID", "userID"), new BeanDto("操作用户姓名", "username"),
-            new BeanDto("操作用户注册名", "regname"), new BeanDto("操作用户的员工ID", "personid"),
-            new BeanDto("操作用户的角色ID", "sysrole"), new BeanDto("集团ID", "corpid"), new BeanDto("集团代码", "corpcode"), new BeanDto("集团名称", "corpname"),
+    public static final BeanDto[] FIXEDVALUES = new BeanDto[]{null, new BeanDto("当前日期", "currentDate"), new BeanDto("员工ID", "userID"), new BeanDto("员工姓名", "username"),
+            new BeanDto("操作用户ID", "personid"), new BeanDto("操作用户注册名", "regname"),
+            new BeanDto("操作用户角色ID", "sysrole"), new BeanDto("集团ID", "corpid"), new BeanDto("集团代码", "corpcode"), new BeanDto("集团名称", "corpname"),
             new BeanDto("当前会话身份ID", "sysAccessID"), new BeanDto("设计项目代码", "curProjectCode"),
     };
     //操作符
@@ -304,7 +304,7 @@ public abstract class InparamTableDelegateCommonAbs extends InparamTableDelegate
      * @return
      */
     protected List<String> loadProp2List(JsonObject inparamObj, String prop) {
-        String value = PubUtil.getProp(inparamObj, prop, true);
+        String value = PubUtil.getProp(inparamObj, prop, false);
         if (StringUtils.nullOrBlank(value)) {
             return null;
         }

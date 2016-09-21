@@ -3,15 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package youngfriend.main_pnl;
+package youngfriend.main_pnl.gui;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import youngfriend.bean.BeanDto;
 import youngfriend.main_pnl.deleagte.BuildTreeDataDelegate;
+import youngfriend.main_pnl.deleagte.InparamTableDelegateAbs;
 import youngfriend.main_pnl.deleagte.InparamTableDelegateCommonAbs;
+import youngfriend.main_pnl.deleagte.SearchTableFieldDelegage;
 import youngfriend.main_pnl.deleagte.SortFieldDelegate;
 import youngfriend.main_pnl.deleagte.V6TypeDelegate;
-import youngfriend.utils.ModuleType;
+import youngfriend.utils.PubUtil;
 
 import javax.swing.JTextField;
 import java.util.HashMap;
@@ -20,21 +24,65 @@ import java.util.Map;
 /**
  * @author xiong
  */
-public class ServicePnl extends AbstractMainPnl {
-    @Override
-    protected ModuleType getModuleType() {
-        return ModuleType.SERVICE;
-    }
+public class CommonPnl extends AbstractMainPnl {
 
-    private final V6TypeDelegate v6TypeDelegate;
-    private final BuildTreeDataDelegate buildTreeDataDelegate;
-    private final SortFieldDelegate sortFieldDelegate;
+
+    private BuildTreeDataDelegate buildTreeDataDelegate;
+    private SortFieldDelegate sortFieldDelegate;
+    private V6TypeDelegate v6TypeDelegate;
+    public static final String ORDERPARAMS_NAME = "orderparams";
+    public static final String ORDERPARAMS_LABEL = "排序入口参数";
 
     public void clear() {
         super.clear();
         inparamTableDeletage.clear();
         outParamTableDeletate.clear();
         buildTreeDataDelegate.clear();
+        v6TypeDelegate.clear();
+        orderparams_checkbox.setSelected(false);
+    }
+
+
+    @Override
+    protected Map<String, JsonObject> getInParamFieldMap(JsonObject inparamLevel1) {
+        JsonArray fieldArray = PubUtil.getJsonObj(inparamLevel1, InparamTableDelegateAbs.INPARAMS_PROPNAME, JsonArray.class);
+        if (fieldArray != null) {
+            HashMap<String, JsonObject> inParamFieldMap = new HashMap<String, JsonObject>(fieldArray.size());
+            for (JsonElement fieldEle : fieldArray) {
+                JsonObject fieldObj = fieldEle.getAsJsonObject();
+                String name = PubUtil.getProp(fieldObj, "name");
+                if (name.equals(ORDERPARAMS_NAME)) {
+                    orderparams_checkbox.setSelected(true);
+                    continue;
+                }
+                inParamFieldMap.put(name, fieldObj);
+            }
+            return inParamFieldMap;
+        }
+        return null;
+    }
+
+    @Override
+    public void loadData(JsonObject jsonData) throws Exception {
+        JsonObject inparamLevel1 = commomLoadData(jsonData, readOnlyCb);
+        v6TypeDelegate.loadV6PropData(inparamLevel1);
+        Map<String, JsonObject> inParamFieldMap = getInParamFieldMap(inparamLevel1);
+        inparamTableDeletage.loadInTableDatas(jsonData, inParamFieldMap);
+        Map<JTextField, String> tfComKeyMap = new HashMap<JTextField, String>();
+        tfComKeyMap.put(saveServiceName_tf, "saveServiceName");
+        tfComKeyMap.put(deleteServiceName_tf, "deleteServiceName");
+        tfComKeyMap.put(queryServiceName_tf, "queryServiceName");
+        tfComKeyMap.put(saveServiceName_tf, "saveServiceName");
+        tfComKeyMap.put(saveServiceName_tf, "saveServiceName");
+        commondLoadJTextField(jsonData, tfComKeyMap);
+        tfComKeyMap.clear();
+        tfComKeyMap.put(codeField_tf, "codeField");
+        tfComKeyMap.put(rootName_tf, "rootName");
+        tfComKeyMap.put(nameField_tf, "nameField");
+        tfComKeyMap.put(codeInc_tf, "codeInc");
+        commondLoadJTextField(inparamLevel1, tfComKeyMap);
+        sortFieldDelegate.load(jsonData);
+        buildTreeDataDelegate.load(inparamLevel1);
 
     }
 
@@ -45,40 +93,17 @@ public class ServicePnl extends AbstractMainPnl {
         v6TypeDelegate.saveV6typeInparam(inparamLevel1);
     }
 
-    @Override
-    public void loadData(JsonObject jsonData) throws Exception {
-        try {
-            init = true;
-            JsonObject inparamLevel1 = commomLoadData(jsonData, readOnlyCb);
-            v6TypeDelegate.loadV6PropData(inparamLevel1);
-            Map<String, JsonObject> inParamFieldMap = getInParamFieldMap(inparamLevel1);
-            inparamTableDeletage.loadInTableDatas(jsonData, inParamFieldMap);
-
-            Map<JTextField, String> tfComKeyMap = new HashMap<JTextField, String>();
-            tfComKeyMap.put(saveServiceName_tf, "saveServiceName");
-            tfComKeyMap.put(deleteServiceName_tf, "deleteServiceName");
-            tfComKeyMap.put(queryServiceName_tf, "queryServiceName");
-            tfComKeyMap.put(saveServiceName_tf, "saveServiceName");
-            tfComKeyMap.put(saveServiceName_tf, "saveServiceName");
-            commondLoadJTextField(jsonData, tfComKeyMap);
-            tfComKeyMap.clear();
-            tfComKeyMap.put(codeField_tf, "codeField");
-            tfComKeyMap.put(rootName_tf, "rootName");
-            tfComKeyMap.put(nameField_tf, "nameField");
-            tfComKeyMap.put(codeInc_tf, "codeInc");
-            commondLoadJTextField(inparamLevel1, tfComKeyMap);
-            sortFieldDelegate.load(jsonData);
-            buildTreeDataDelegate.load(inparamLevel1);
-        } finally {
-            init = false;
-        }
-
-    }
-
 
     @Override
     public void saveParam(String modulelabel, JsonObject jsonData) {
         super.saveParam(modulelabel, jsonData);
+        if (orderparams_checkbox.isSelected()) {
+            JsonObject fieldObj = new JsonObject();
+            fieldObj.addProperty("name", ORDERPARAMS_NAME);
+            fieldObj.addProperty("label", ORDERPARAMS_LABEL);
+            fieldObj.addProperty("defaultValue", "");
+            inparamTableDeletage.getInparamLevel2().add(fieldObj);
+        }
         sortFieldDelegate.save(jsonData);
         String queryServiceName = queryServiceName_tf.getText().trim(), saveServiceName = saveServiceName_tf.getText().trim(), deleteServiceName = deleteServiceName_tf.getText().trim();
         jsonData.addProperty("queryServiceName", queryServiceName);
@@ -90,10 +115,10 @@ public class ServicePnl extends AbstractMainPnl {
     /**
      * Creates new form CommonPnl
      */
-    public ServicePnl() {
+    public CommonPnl() {
         initComponents();
-        commonModule = false;
-        afterUi(table_combo, outParams_table, outParamsAdd_btn, outParamsDel_btn, readOnlyCb);
+        new SearchTableFieldDelegage(searchBtn, searchTf, fieldtable);
+        afterUi(outParams_table, outParamsAdd_btn, outParamsDel_btn, readOnlyCb);
         v6TypeDelegate = new V6TypeDelegate(v6type_btn, v6type_tf);
         buildTreeDataDelegate = new BuildTreeDataDelegate(tree_checkbox, fieldListDlg, rootName_tf, codeField_tf, nameField_tf, codeInc_tf, codeField_btn, name_field_btn);
         sortFieldDelegate = new SortFieldDelegate(sort_tf, sort_btn, fields);
@@ -116,9 +141,10 @@ public class ServicePnl extends AbstractMainPnl {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        table_combo = new javax.swing.JComboBox();
         jLabel8 = new javax.swing.JLabel();
         readOnlyCb = new javax.swing.JCheckBox();
+        searchTf = new javax.swing.JTextField();
+        searchBtn = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         tree_checkbox = new javax.swing.JCheckBox();
@@ -144,6 +170,7 @@ public class ServicePnl extends AbstractMainPnl {
         deleteServiceName_tf = new javax.swing.JTextField();
         sort_btn = new javax.swing.JButton();
         v6type_btn = new javax.swing.JButton();
+        orderparams_checkbox = new javax.swing.JCheckBox();
         outParams_pnl = new javax.swing.JPanel();
         outParams_spnl = new javax.swing.JScrollPane();
         outParams_table = new javax.swing.JTable();
@@ -157,9 +184,11 @@ public class ServicePnl extends AbstractMainPnl {
         setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         setLayout(new java.awt.BorderLayout());
 
-        jLabel8.setText("数据源");
+        jLabel8.setText("搜索");
 
         readOnlyCb.setText("是否只读");
+
+        searchBtn.setText("...");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -169,20 +198,23 @@ public class ServicePnl extends AbstractMainPnl {
                                 .addGap(14, 14, 14)
                                 .addComponent(jLabel8)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(table_combo, javax.swing.GroupLayout.PREFERRED_SIZE, 345, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(searchTf, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(searchBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(22, 22, 22)
                                 .addComponent(readOnlyCb)
-                                .addContainerGap(540, Short.MAX_VALUE))
+                                .addContainerGap(675, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
                 jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(11, 11, 11)
+                                .addGap(9, 9, 9)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(table_combo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addComponent(jLabel8)
-                                        .addComponent(readOnlyCb))
-                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .addComponent(readOnlyCb)
+                                        .addComponent(searchTf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(searchBtn))
+                                .addContainerGap(10, Short.MAX_VALUE))
         );
 
         add(jPanel1, java.awt.BorderLayout.PAGE_START);
@@ -233,20 +265,19 @@ public class ServicePnl extends AbstractMainPnl {
                                 .addGap(8, 8, 8)
                                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addGroup(jPanel4Layout.createSequentialGroup()
-                                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                        .addGroup(jPanel4Layout.createSequentialGroup()
-                                                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                                                        .addComponent(nameField_tf, javax.swing.GroupLayout.DEFAULT_SIZE, 210, Short.MAX_VALUE)
-                                                                        .addComponent(codeField_tf))
-                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                                                        .addComponent(codeField_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                                        .addComponent(name_field_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                                        .addComponent(codeInc_tf))
-                                                .addGap(15, 15, 15))
+                                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                                        .addComponent(codeField_tf, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 264, Short.MAX_VALUE)
+                                                        .addComponent(nameField_tf, javax.swing.GroupLayout.Alignment.LEADING))
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                                        .addComponent(codeField_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                        .addComponent(name_field_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                         .addGroup(jPanel4Layout.createSequentialGroup()
-                                                .addComponent(rootName_tf)
-                                                .addContainerGap())))
+                                                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                        .addComponent(rootName_tf, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                        .addComponent(codeInc_tf, javax.swing.GroupLayout.PREFERRED_SIZE, 301, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                .addGap(0, 2, Short.MAX_VALUE)))
+                                .addGap(16, 16, 16))
         );
         jPanel4Layout.setVerticalGroup(
                 jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -292,6 +323,8 @@ public class ServicePnl extends AbstractMainPnl {
 
         v6type_btn.setText("...");
 
+        orderparams_checkbox.setText("设置排序入口参数");
+
         outParams_pnl.setBorder(javax.swing.BorderFactory.createTitledBorder("出口参数设置"));
         outParams_pnl.setLayout(new java.awt.BorderLayout());
 
@@ -313,6 +346,7 @@ public class ServicePnl extends AbstractMainPnl {
                 return types[columnIndex];
             }
         });
+        outParams_table.setRowHeight(25);
         outParams_spnl.setViewportView(outParams_table);
 
         outParams_pnl.add(outParams_spnl, java.awt.BorderLayout.CENTER);
@@ -331,40 +365,45 @@ public class ServicePnl extends AbstractMainPnl {
                 jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(jLabel9)
-                                        .addComponent(jLabel10)
-                                        .addComponent(jLabel11)
-                                        .addComponent(jLabel12)
-                                        .addComponent(jLabel13))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                        .addComponent(saveServiceName_tf, javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(queryServiceName_tf, javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
+                                .addGap(21, 21, 21)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addGroup(jPanel2Layout.createSequentialGroup()
+                                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                        .addComponent(jLabel9)
+                                                        .addComponent(jLabel10)
+                                                        .addComponent(jLabel11)
+                                                        .addComponent(jLabel12)
+                                                        .addComponent(jLabel13))
+                                                .addGap(18, 18, 18)
+                                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                        .addComponent(queryServiceName_tf)
+                                                        .addComponent(saveServiceName_tf)
+                                                        .addComponent(deleteServiceName_tf)))
+                                        .addComponent(orderparams_checkbox)
+                                        .addGroup(jPanel2Layout.createSequentialGroup()
+                                                .addGap(100, 100, 100)
                                                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                                        .addComponent(sort_tf, javax.swing.GroupLayout.DEFAULT_SIZE, 213, Short.MAX_VALUE)
+                                                        .addComponent(sort_tf, javax.swing.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE)
                                                         .addComponent(v6type_tf))
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                                         .addComponent(sort_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                        .addComponent(v6type_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                        .addComponent(deleteServiceName_tf, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                        .addComponent(v6type_btn, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(outParams_pnl, javax.swing.GroupLayout.DEFAULT_SIZE, 290, Short.MAX_VALUE)
-                                .addGap(10, 10, 10))
+                                .addComponent(outParams_pnl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
                 jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                                .addGap(12, 12, 12)
-                                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                                .addContainerGap()
                                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                        .addGroup(jPanel2Layout.createSequentialGroup()
+                                                .addGap(0, 0, Short.MAX_VALUE)
+                                                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(jPanel2Layout.createSequentialGroup()
+                                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(orderparams_checkbox)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                                         .addComponent(jLabel13)
                                                         .addComponent(sort_tf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -374,7 +413,7 @@ public class ServicePnl extends AbstractMainPnl {
                                                         .addComponent(jLabel12)
                                                         .addComponent(v6type_tf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                         .addComponent(v6type_btn))
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addGap(4, 4, 4)
                                                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                                                         .addComponent(jLabel9)
                                                         .addComponent(queryServiceName_tf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -385,11 +424,11 @@ public class ServicePnl extends AbstractMainPnl {
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                                                         .addComponent(deleteServiceName_tf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                        .addComponent(jLabel11))
-                                                .addGap(19, 19, 19))
-                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                                                .addComponent(outParams_pnl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addContainerGap())))
+                                                        .addComponent(jLabel11))))
+                                .addContainerGap())
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                .addGap(7, 7, 7)
+                                .addComponent(outParams_pnl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         add(jPanel2, java.awt.BorderLayout.PAGE_END);
@@ -426,20 +465,20 @@ public class ServicePnl extends AbstractMainPnl {
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
                 jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGap(0, 1034, Short.MAX_VALUE)
+                        .addGap(0, 1129, Short.MAX_VALUE)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addGroup(jPanel3Layout.createSequentialGroup()
                                         .addGap(0, 0, 0)
-                                        .addComponent(jScrollPane2)
+                                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 1129, Short.MAX_VALUE)
                                         .addGap(0, 0, 0)))
         );
         jPanel3Layout.setVerticalGroup(
                 jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGap(0, 338, Short.MAX_VALUE)
+                        .addGap(0, 373, Short.MAX_VALUE)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addGroup(jPanel3Layout.createSequentialGroup()
                                         .addGap(0, 0, 0)
-                                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 338, Short.MAX_VALUE)
+                                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 373, Short.MAX_VALUE)
                                         .addGap(0, 0, 0)))
         );
 
@@ -471,6 +510,7 @@ public class ServicePnl extends AbstractMainPnl {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextField nameField_tf;
     private javax.swing.JButton name_field_btn;
+    private javax.swing.JCheckBox orderparams_checkbox;
     private javax.swing.JButton outParamsAdd_btn;
     private javax.swing.JButton outParamsDel_btn;
     private javax.swing.JPanel outParams_pnl;
@@ -480,9 +520,10 @@ public class ServicePnl extends AbstractMainPnl {
     private javax.swing.JCheckBox readOnlyCb;
     private javax.swing.JTextField rootName_tf;
     private javax.swing.JTextField saveServiceName_tf;
+    private javax.swing.JButton searchBtn;
+    private javax.swing.JTextField searchTf;
     private javax.swing.JButton sort_btn;
     private javax.swing.JTextField sort_tf;
-    private javax.swing.JComboBox table_combo;
     private javax.swing.JCheckBox tree_checkbox;
     private javax.swing.JButton v6type_btn;
     private javax.swing.JTextField v6type_tf;

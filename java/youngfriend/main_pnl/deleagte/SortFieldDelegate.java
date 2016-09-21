@@ -2,7 +2,7 @@ package youngfriend.main_pnl.deleagte;
 
 import com.google.gson.JsonObject;
 import youngfriend.bean.BeanDto;
-import youngfriend.gui.SortFieldDlg;
+import youngfriend.gui.sortField.SortFieldDlg;
 import youngfriend.utils.PubUtil;
 
 import javax.swing.JButton;
@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class SortFieldDelegate {
     private final JTextField sortTf;
-    private static final SortFieldDlg sortFieldDlg = new SortFieldDlg(PubUtil.mainFrame);
+    private static final SortFieldDlg sortFieldDlg = new SortFieldDlg();
     public static final String PROP = "sortfields";
 
     public SortFieldDelegate(final JTextField sortTf, JButton sortBtn, final List<BeanDto> fields) {

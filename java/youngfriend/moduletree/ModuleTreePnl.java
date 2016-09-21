@@ -8,48 +8,46 @@ package youngfriend.moduletree;
 import com.google.common.base.Strings;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import youngfriend.bean.BeanDto;
 import youngfriend.common.util.StringUtils;
 import youngfriend.common.util.net.exception.ServiceInvokerException;
+import youngfriend.main_pnl.MainPnlFactory;
+import youngfriend.moduletree.menus.ModuleTreePopup;
+import youngfriend.service.CatalogServiceUtil;
+import youngfriend.service.ModuleServiceUtil;
+import youngfriend.service.ServiceInvoker;
 import youngfriend.utils.Do4objs;
+import youngfriend.utils.ModuleType;
 import youngfriend.utils.PubUtil;
-import youngfriend.utils.ServiceInvoker;
 
-import javax.swing.SwingUtilities;
+import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.Enumeration;
 
 import static youngfriend.App.busyDoing;
+import static youngfriend.utils.PubUtil.FALSESTR;
 import static youngfriend.utils.PubUtil.TRUESTR;
 
 /**
  * @author xiong
  */
 public class ModuleTreePnl extends javax.swing.JPanel {
+
+
     /**
      * Creates new form ModuleTreePnl
      */
     public ModuleTreePnl() {
         initComponents();
-        moduleTree.setRootVisible(false);
-        moduleTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        addEvents();
-        loadProjectData();
+        after();
     }
 
     /**
@@ -131,13 +129,55 @@ public class ModuleTreePnl extends javax.swing.JPanel {
     public static final String[] CATALOG_TOSTRING = {"name", "code"};
     public static final String[] MODULE_TOSTRING = {"name", "code", "module_type"};
     public static final String ISMODULE = "ismodule";
+    public static final String MODULE_TYPE_PROP = "typee";
     private DefaultMutableTreeNode moduleTreeRoot = new DefaultMutableTreeNode("组件树");
-    private DefaultTreeModel moduleTreeModel = new DefaultTreeModel(moduleTreeRoot);
-
+    private DefaultTreeModel moduleTreeModel = new DefaultTreeModel(moduleTreeRoot, true);
+    private String beforeSelectNodeId;
     private DefaultMutableTreeNode selectNode;
-    private BeanDto moduleCatalogBean = null;
     private BeanDto projectBean;
+
+    private boolean rebuild = false;
     private BeanDto moduleInfoBean;
+
+    public BeanDto getModuleCatalogBean() {
+        return moduleCatalogBean;
+    }
+
+    public BeanDto getModuleInfoBean() {
+        return moduleInfoBean;
+    }
+
+    private BeanDto moduleCatalogBean;
+
+    public void setMainPnlFactory(MainPnlFactory mainPnlFactory) {
+        this.mainPnlFactory = mainPnlFactory;
+    }
+
+    private MainPnlFactory mainPnlFactory;
+
+    /**
+     * typed mean v6version 2 or 3
+     *
+     * @return
+     */
+    public boolean isVersion2() {
+        if (moduleInfoBean == null) {
+            return false;
+
+        }
+        return "2".equals(moduleInfoBean.getValue("typed"));
+    }
+
+    private void after() {
+        moduleTree.setScrollsOnExpand(true);
+        moduleTree.setRootVisible(false);
+        moduleTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        addEvents();
+        loadProjectData();
+        new ModuleTreePopup(this);
+        new SearchNodeDelegate(moduleTree, moduleTreeRoot, moduleSearchTf, moduleSearchBtn);
+        new KeyEventDelegate(this);
+    }
 
     public String getProjectId() {
         return projectBean == null ? null : projectBean.getValue("id");
@@ -164,28 +204,12 @@ public class ModuleTreePnl extends javax.swing.JPanel {
     }
 
     private void addEvents() {
-        moduleSearchBtn.addActionListener(new ActionListener() {
 
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                searchModule();
-            }
-        });
-        moduleSearchTf.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent keyEvent) {
-                if (keyEvent.getKeyCode() == KeyEvent.VK_ENTER) {
-                    searchModule();
-                }
-            }
-
-        });
         projectCombo.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent itemEvent) {
                 final BeanDto selectBean = (BeanDto) itemEvent.getItem();
                 buildTreeByProject(selectBean);
-
             }
         });
 
@@ -193,43 +217,15 @@ public class ModuleTreePnl extends javax.swing.JPanel {
         moduleTree.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent treeSelectionEvent) {
-                DefaultMutableTreeNode tempNode = (DefaultMutableTreeNode) treeSelectionEvent.getPath().getLastPathComponent();
-
-//                if (selectNode != null && !selectNode.isRoot()) {
-//                    moduleCatalogBean = (BeanDto) selectNode.getUserObject();
-//                } else {
-//                    return;
-//                }
-//                if (moduleCatalogBean != null && !TRUESTR.equals(moduleCatalogBean.getValue(ISMODULE))) {
-//                    PubUtil.enableComponents(oper_pnl, false);
-//                    main_pnl.setVisible(false);
-//                    return;
-//                }
-//                loadData();
-            }
-        });
-
-
-        moduleTree.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent mouseEvent) {
-                if (SwingUtilities.isRightMouseButton(mouseEvent)) {
-                    if (moduleInfoBean == null) {
-                        return;
-                    }
-                    boolean ismodule = TRUESTR.equals(moduleInfoBean.getValue(ISMODULE));
-//
-//                    saveItem.setEnabled(!ismodule);
-//                    addCatalogItem.setEnabled(!ismodule);
-//                    removeItem.setEnabled(ismodule);
-//                    removeCatalogItem.setEnabled(!ismodule);
-//                    editModuleItem.setEnabled(ismodule);
-//                    editCatalogItem.setEnabled(!ismodule);
-//                    copyModuleItem.setEnabled(ismodule);
-//                    menu.show(moduleTree, mouseEvent.getX(), mouseEvent.getY());
+                if (rebuild) {
+                    return;
                 }
+
+                selectNode = (DefaultMutableTreeNode) treeSelectionEvent.getPath().getLastPathComponent();
+                reLoadData();
             }
         });
+
 
     }
 
@@ -239,8 +235,7 @@ public class ModuleTreePnl extends javax.swing.JPanel {
      */
     private void buildTreeByProject(final BeanDto selectBean) {
         if (selectBean == null) {
-            moduleTreeRoot.removeAllChildren();
-            moduleTreeModel.nodeStructureChanged(moduleTreeRoot);
+            clearTreeNodes();
             projectBean = null;
         } else {
             busyDoing(new Do4objs() {
@@ -248,9 +243,9 @@ public class ModuleTreePnl extends javax.swing.JPanel {
                 public void do4ojbs(Object... objs) {
                     try {
                         String projectId = selectBean.getValue("id");
-                        String jsonStr = ServiceInvoker.form_catalog_get(projectId);
+                        String jsonStr = CatalogServiceUtil.form_catalog_get(projectId);
                         addNodesLeftTree(jsonStr);
-                        jsonStr = ServiceInvoker.btnmodule_catalog_get(projectId);
+                        jsonStr = CatalogServiceUtil.btnmodule_catalog_get(projectId);
                         addNodesLeftTree(jsonStr);
                     } catch (Exception e) {
                         logger.error(e.getMessage(), e);
@@ -273,6 +268,11 @@ public class ModuleTreePnl extends javax.swing.JPanel {
         }
     }
 
+    private void clearTreeNodes() {
+        moduleTreeRoot.removeAllChildren();
+        moduleTreeModel.nodeStructureChanged(moduleTreeRoot);
+    }
+
     /**
      * add tree node to tree
      *
@@ -292,64 +292,102 @@ public class ModuleTreePnl extends javax.swing.JPanel {
                     String moduleid = dto.getValue("moduleid");
                     if (Strings.isNullOrEmpty(moduleid) || "#".equals(moduleid)) {
                         node.setAllowsChildren(true);
-                        dto.setItem(ISMODULE, "false");
+                        dto.setItem(ISMODULE, FALSESTR);
                     } else {
                         dto.setItem(ISMODULE, TRUESTR);
                         dto.setToString(MODULE_TOSTRING);
+                    }
+                    if (rebuild && beforeSelectNodeId != null) {
+                        if (beforeSelectNodeId.equals(dto.getValue("id"))) {
+                            selectNode = node;
+                        }
                     }
                 }
             }, CATALOG_TOSTRING);
         }
     }
 
-    private void searchModule() {
-        String text = moduleSearchTf.getText().trim();
-        if (StringUtils.nullOrBlank(text)) {
-            return;
-        }
-        Enumeration<DefaultMutableTreeNode> enumeration = moduleTreeRoot.breadthFirstEnumeration();
-        if (selectNode != null) {
-            while (enumeration.hasMoreElements()) {
-                if (enumeration.nextElement().equals(selectNode)) {
-                    break;
-                }
-            }
-        }
-        while (enumeration.hasMoreElements() || (enumeration = moduleTreeRoot.breadthFirstEnumeration()) != null) {
-            DefaultMutableTreeNode current = enumeration.nextElement();
-            if (current.toString().contains(text)) {
-                TreePath path = new TreePath(current.getPath());
-                moduleTree.setSelectionPath(path);
-                moduleTree.scrollPathToVisible(path);
-                moduleTree.repaint();
-                break;
-            }
-        }
 
+    public boolean isModule() {
+        if (moduleCatalogBean == null) {
+            return false;
+        }
+        boolean ismodule = TRUESTR.equals(moduleCatalogBean.getValue(ISMODULE));
+        return ismodule;
+    }
+
+    public void reBuildTree() {
+        rebuild = true;
+        if (this.moduleCatalogBean != null) {
+            beforeSelectNodeId = moduleCatalogBean.getValue("id");
+        }
+        clearTreeNodes();
+        buildTreeByProject(projectBean);
+        if (beforeSelectNodeId != null) {
+            TreeUtil.selectNode(moduleTree, selectNode);
+            beforeSelectNodeId = null;
+        }
+        rebuild = false;
     }
 
     /**
-     * typed mean v6version 2 or 3
-     *
-     * @return
+     * change select node text string
      */
-    public boolean isVersion2() {
-        if (moduleInfoBean == null) {
-            return false;
+    public void selectNodeChange() {
+        moduleTreeModel.nodeChanged(selectNode);
+    }
 
+
+    public ModuleType getModuleType() {
+        String typee = moduleInfoBean.getValue(MODULE_TYPE_PROP);
+        if (StringUtils.nullOrBlank(typee)) {
+            //default type is common  which value is empty
+            return ModuleType.COMMON;
         }
-        return "2".equals(moduleInfoBean.getValue("typed"));
+        ModuleType[] values = ModuleType.values();
+        for (ModuleType value : values) {
+            if (value.getValue().equals(typee)) {
+                return value;
+            }
+        }
+        return ModuleType.COMMON;
     }
 
-    public BeanDto getModuleInfoBean() {
-        return moduleInfoBean;
+    public JTree getModuleTree() {
+        return moduleTree;
     }
 
+    public DefaultMutableTreeNode getSelectNode() {
+        return selectNode;
+    }
 
-    public void reBuildTree() {
-        DefaultMutableTreeNode beforeSelectNode = this.selectNode;
-        buildTreeByProject(projectBean);
-        TreePath treePath = new TreePath(moduleTreeModel.getPathToRoot(beforeSelectNode));
-        moduleTree.setSelectionPath(treePath);
+    /**
+     * 保存过后,重新取数据
+     */
+    public void reLoadData() {
+        if (selectNode != null && !selectNode.isRoot()) {
+            moduleCatalogBean = (BeanDto) selectNode.getUserObject();
+            String moudleid = moduleCatalogBean.getValue("moduleid");
+            try {
+                String moduleString = ModuleServiceUtil.getModule(moudleid);
+                JsonElement moduleJsonElement = PubUtil.parseJson(moduleString);
+                moduleInfoBean = null;
+                if (moduleJsonElement != null) {
+                    JsonArray moduleJsonArray = moduleJsonElement.getAsJsonArray();
+                    if (moduleJsonArray.size() > 0) {
+                        JsonObject moduleObj = moduleJsonArray.get(0).getAsJsonObject();
+                        moduleInfoBean = new BeanDto(moduleObj, "name");
+                    }
+                }
+
+            } catch (ServiceInvokerException e) {
+                PubUtil.showMsg("获取组件信息失败");
+                logger.error(e.getMessage());
+            }
+        } else {
+            moduleCatalogBean = null;
+            moduleInfoBean = null;
+        }
+        mainPnlFactory.loadData(moduleCatalogBean, moduleInfoBean, isVersion2());
     }
 }

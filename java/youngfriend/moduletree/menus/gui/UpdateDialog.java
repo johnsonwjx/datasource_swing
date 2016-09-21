@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package youngfriend.gui;
+package youngfriend.moduletree.menus.gui;
 
 import com.google.common.base.Strings;
 import youngfriend.bean.BeanDto;
