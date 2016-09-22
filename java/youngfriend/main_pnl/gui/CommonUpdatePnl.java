@@ -42,7 +42,7 @@ public class CommonUpdatePnl extends AbstractMainPnl {
 
     @Override
     public void loadData(JsonObject jsonData) throws Exception {
-        commomLoadData(jsonData, readOnlyCb);
+        commomLoadData(jsonData);
         JsonObject inparamLevel1 = PubUtil.getJsonObj(jsonData, InparamTableDelegateAbs.INPARAM_PROPNAME, JsonArray.class).get(0).getAsJsonObject();
         Map<String, JsonObject> inParamFieldMap = getInParamFieldMap(inparamLevel1);
         inparamTableDeletage.loadInTableDatas(jsonData, inParamFieldMap);
@@ -97,8 +97,8 @@ public class CommonUpdatePnl extends AbstractMainPnl {
      */
     public CommonUpdatePnl() {
         initComponents();
-        new SearchTableFieldDelegage(searchBtn,searchTf,fieldtable);
-        afterUi(outParams_table, outParamsAdd_btn, outParamsDel_btn, readOnlyCb);
+        new SearchTableFieldDelegage(searchBtn, searchTf, fieldtable);
+        afterUi(outParams_table, outParamsAdd_btn, outParamsDel_btn);
         inparamTableDeletage = new InparamTableDelegateCommonAbs(fieldtable) {
             @Override
             protected void loadFieldCustom(BeanDto field) {
@@ -140,7 +140,6 @@ public class CommonUpdatePnl extends AbstractMainPnl {
 
         jPanel1 = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
-        readOnlyCb = new javax.swing.JCheckBox();
         searchTf = new javax.swing.JTextField();
         searchBtn = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
@@ -165,8 +164,6 @@ public class CommonUpdatePnl extends AbstractMainPnl {
 
         jLabel8.setText("搜索");
 
-        readOnlyCb.setText("是否只读");
-
         searchBtn.setText("...");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -180,9 +177,7 @@ public class CommonUpdatePnl extends AbstractMainPnl {
                                 .addComponent(searchTf, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(searchBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(19, 19, 19)
-                                .addComponent(readOnlyCb)
-                                .addContainerGap(660, Short.MAX_VALUE))
+                                .addContainerGap(763, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
                 jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -190,7 +185,6 @@ public class CommonUpdatePnl extends AbstractMainPnl {
                                 .addGap(9, 9, 9)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                         .addComponent(jLabel8)
-                                        .addComponent(readOnlyCb)
                                         .addComponent(searchTf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addComponent(searchBtn))
                                 .addContainerGap(10, Short.MAX_VALUE))
@@ -281,7 +275,7 @@ public class CommonUpdatePnl extends AbstractMainPnl {
 
                 },
                 new String[]{
-                        "字段", "显示名称", "不返回字段", "作为入口参数", "操作符", "为空时,保留条件", "查询时,固定值", "保存时,固定值"
+                        "字段", "显示名称", "不返回字段", "作为入口参数", "操作符", "为空时,保留条件", "固定值(查询时)", "固定值(保存时)"
                 }
         ) {
             Class[] types = new Class[]{
@@ -342,7 +336,6 @@ public class CommonUpdatePnl extends AbstractMainPnl {
     private javax.swing.JPanel outParams_pnl;
     private javax.swing.JScrollPane outParams_spnl;
     private javax.swing.JTable outParams_table;
-    private javax.swing.JCheckBox readOnlyCb;
     private javax.swing.JButton searchBtn;
     private javax.swing.JTextField searchTf;
     private javax.swing.JButton updateAdd_btn;

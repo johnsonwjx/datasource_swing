@@ -17,7 +17,6 @@ import youngfriend.utils.PubUtil;
 import youngfriend.utils.ServiceType;
 
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -44,7 +43,6 @@ public abstract class AbstractMainPnl extends JPanel {
 
     protected InparamTableDelegateAbs inparamTableDeletage;
 
-    private JCheckBox readOnlyCb;
 
     private MainHeaderPnl mainHeaderPnl;
     private BeanDto moduleInfoBean;
@@ -61,7 +59,7 @@ public abstract class AbstractMainPnl extends JPanel {
 
 
     public void saveParam(String modulelabel, JsonObject jsonData) {
-        jsonData.addProperty("readOnly", readOnlyCb.isSelected() ? "true" : "false");
+
         String tablename = mainHeaderPnl.getTablename();
         //入口参数表格保存处理
         inparamTableDeletage.save(jsonData);
@@ -150,8 +148,8 @@ public abstract class AbstractMainPnl extends JPanel {
      * @return inparamLevel1 第一层
      * @throws Exception
      */
-    protected JsonObject commomLoadData(JsonObject inparamObj, JCheckBox readOnlyCb) throws Exception {
-        readOnlyCb.setSelected("true".equals(PubUtil.getProp(inparamObj, "readOnly")));
+    protected JsonObject commomLoadData(JsonObject inparamObj) throws Exception {
+
         JsonObject inparamLevel1 = PubUtil.getJsonObj(inparamObj, InparamTableDelegateAbs.INPARAM_PROPNAME, JsonArray.class).get(0).getAsJsonObject();
         outParamTableDeletate.load(inparamObj);
         return inparamLevel1;
@@ -176,9 +174,8 @@ public abstract class AbstractMainPnl extends JPanel {
     /**
      * UI控件完成后
      */
-    protected void afterUi(final JTable outTable, JButton outParamsAddBtn, JButton outParamsDelBtn, JCheckBox readOnlyCb) {
+    protected void afterUi(final JTable outTable, JButton outParamsAddBtn, JButton outParamsDelBtn) {
         //公共共同控件
-        this.readOnlyCb = readOnlyCb;
         outParamTableDeletate = new OutParamTableDeletate(outTable, outParamsAddBtn, outParamsDelBtn);
     }
 

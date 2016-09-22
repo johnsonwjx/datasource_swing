@@ -40,9 +40,7 @@
                   <Component id="searchTf" min="-2" pref="258" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="searchBtn" min="-2" pref="38" max="-2" attributes="0"/>
-                  <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
-                  <Component id="readOnlyCb" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace pref="675" max="32767" attributes="0"/>
+                  <EmptySpace pref="781" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -52,7 +50,6 @@
                   <EmptySpace min="-2" pref="9" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="jLabel8" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="readOnlyCb" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="searchTf" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="searchBtn" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
@@ -65,11 +62,6 @@
         <Component class="javax.swing.JLabel" name="jLabel8">
           <Properties>
             <Property name="text" type="java.lang.String" value="&#x641c;&#x7d22;"/>
-          </Properties>
-        </Component>
-        <Component class="javax.swing.JCheckBox" name="readOnlyCb">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="&#x662f;&#x5426;&#x53ea;&#x8bfb;"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="searchTf">
@@ -511,8 +503,8 @@
                     <Column editable="true" title="&#x4f5c;&#x4e3a;&#x5165;&#x53e3;&#x53c2;&#x6570;" type="java.lang.Boolean"/>
                     <Column editable="true" title="&#x64cd;&#x4f5c;&#x7b26;" type="java.lang.Object"/>
                     <Column editable="true" title="&#x4e3a;&#x7a7a;&#x65f6;,&#x4fdd;&#x7559;&#x6761;&#x4ef6;" type="java.lang.Boolean"/>
-                    <Column editable="true" title="&#x67e5;&#x8be2;&#x65f6;,&#x56fa;&#x5b9a;&#x503c;" type="java.lang.Object"/>
-                    <Column editable="true" title="&#x4fdd;&#x5b58;&#x65f6;,&#x56fa;&#x5b9a;&#x503c;" type="java.lang.Object"/>
+                    <Column editable="true" title="&#x56fa;&#x5b9a;&#x503c;(&#x67e5;&#x8be2;&#x65f6;)" type="java.lang.Object"/>
+                    <Column editable="true" title="&#x56fa;&#x5b9a;&#x503c;(&#x4fdd;&#x5b58;&#x65f6;)" type="java.lang.Object"/>
                     <Column editable="true" title="&#x5206;&#x7c7b;&#x5b57;&#x6bb5;" type="java.lang.Boolean"/>
                     <Column editable="true" title="&#x6c47;&#x603b;&#x51fd;&#x6570;" type="java.lang.Object"/>
                   </Table>

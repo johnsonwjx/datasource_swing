@@ -64,7 +64,7 @@ public class CommonPnl extends AbstractMainPnl {
 
     @Override
     public void loadData(JsonObject jsonData) throws Exception {
-        JsonObject inparamLevel1 = commomLoadData(jsonData, readOnlyCb);
+        JsonObject inparamLevel1 = commomLoadData(jsonData);
         v6TypeDelegate.loadV6PropData(inparamLevel1);
         Map<String, JsonObject> inParamFieldMap = getInParamFieldMap(inparamLevel1);
         inparamTableDeletage.loadInTableDatas(jsonData, inParamFieldMap);
@@ -118,7 +118,7 @@ public class CommonPnl extends AbstractMainPnl {
     public CommonPnl() {
         initComponents();
         new SearchTableFieldDelegage(searchBtn, searchTf, fieldtable);
-        afterUi(outParams_table, outParamsAdd_btn, outParamsDel_btn, readOnlyCb);
+        afterUi(outParams_table, outParamsAdd_btn, outParamsDel_btn);
         v6TypeDelegate = new V6TypeDelegate(v6type_btn, v6type_tf);
         buildTreeDataDelegate = new BuildTreeDataDelegate(tree_checkbox, fieldListDlg, rootName_tf, codeField_tf, nameField_tf, codeInc_tf, codeField_btn, name_field_btn);
         sortFieldDelegate = new SortFieldDelegate(sort_tf, sort_btn, fields);
@@ -142,7 +142,6 @@ public class CommonPnl extends AbstractMainPnl {
 
         jPanel1 = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
-        readOnlyCb = new javax.swing.JCheckBox();
         searchTf = new javax.swing.JTextField();
         searchBtn = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
@@ -186,8 +185,6 @@ public class CommonPnl extends AbstractMainPnl {
 
         jLabel8.setText("搜索");
 
-        readOnlyCb.setText("是否只读");
-
         searchBtn.setText("...");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -201,9 +198,7 @@ public class CommonPnl extends AbstractMainPnl {
                                 .addComponent(searchTf, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(searchBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(22, 22, 22)
-                                .addComponent(readOnlyCb)
-                                .addContainerGap(675, Short.MAX_VALUE))
+                                .addContainerGap(781, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
                 jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -211,7 +206,6 @@ public class CommonPnl extends AbstractMainPnl {
                                 .addGap(9, 9, 9)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                         .addComponent(jLabel8)
-                                        .addComponent(readOnlyCb)
                                         .addComponent(searchTf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addComponent(searchBtn))
                                 .addContainerGap(10, Short.MAX_VALUE))
@@ -439,7 +433,7 @@ public class CommonPnl extends AbstractMainPnl {
 
                 },
                 new String[]{
-                        "字段", "显示名称", "不返回字段", "作为入口参数", "操作符", "为空时,保留条件", "查询时,固定值", "保存时,固定值", "分类字段", "汇总函数"
+                        "字段", "显示名称", "不返回字段", "作为入口参数", "操作符", "为空时,保留条件", "固定值(查询时)", "固定值(保存时)", "分类字段", "汇总函数"
                 }
         ) {
             Class[] types = new Class[]{
@@ -517,7 +511,6 @@ public class CommonPnl extends AbstractMainPnl {
     private javax.swing.JScrollPane outParams_spnl;
     private javax.swing.JTable outParams_table;
     private javax.swing.JTextField queryServiceName_tf;
-    private javax.swing.JCheckBox readOnlyCb;
     private javax.swing.JTextField rootName_tf;
     private javax.swing.JTextField saveServiceName_tf;
     private javax.swing.JButton searchBtn;
