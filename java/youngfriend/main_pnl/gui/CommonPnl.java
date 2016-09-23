@@ -35,8 +35,6 @@ public class CommonPnl extends AbstractMainPnl {
 
     public void clear() {
         super.clear();
-        inparamTableDeletage.clear();
-        outParamTableDeletate.clear();
         buildTreeDataDelegate.clear();
         v6TypeDelegate.clear();
         orderparams_checkbox.setSelected(false);

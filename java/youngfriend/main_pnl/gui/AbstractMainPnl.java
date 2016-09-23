@@ -112,13 +112,7 @@ public abstract class AbstractMainPnl extends JPanel {
         this.mainHeaderPnl = mainHeaderPnl;
         this.moduleInfoBean = moduleInfoBean;
         BeanDto tableBean = mainHeaderPnl.getTableBean();
-        if (tableBean == null) {
-            inparamTableDeletage.clear();
-            //清空字段
-            fieldListDlg.clear();
-            fields.clear();
-
-        } else {
+        if (tableBean != null) {
             try {
                 JTable table = inparamTableDeletage.getTable();
                 if (!commonModule) {
@@ -144,7 +138,6 @@ public abstract class AbstractMainPnl extends JPanel {
      * 公共导入数据
      *
      * @param inparamObj 数据
-     * @param readOnlyCb
      * @return inparamLevel1 第一层
      * @throws Exception
      */
@@ -184,6 +177,11 @@ public abstract class AbstractMainPnl extends JPanel {
     }
 
     public void clear() {
+        outParamTableDeletate.clear();
+        inparamTableDeletage.clear();
+        //清空字段
+        fieldListDlg.clear();
+        fields.clear();
     }
 
 

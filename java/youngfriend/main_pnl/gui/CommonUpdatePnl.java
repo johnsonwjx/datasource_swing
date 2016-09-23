@@ -29,13 +29,6 @@ import java.util.Map;
  */
 public class CommonUpdatePnl extends AbstractMainPnl {
 
-    public void clear() {
-        super.clear();
-        inparamTableDeletage.clear();
-        outParamTableDeletate.clear();
-    }
-
-
     @Override
     void saveInparamLevel2Custom(JsonObject inparamLevel1) {
     }

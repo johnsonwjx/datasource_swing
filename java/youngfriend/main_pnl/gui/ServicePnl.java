@@ -29,10 +29,7 @@ public class ServicePnl extends AbstractMainPnl {
 
     public void clear() {
         super.clear();
-        inparamTableDeletage.clear();
-        outParamTableDeletate.clear();
         buildTreeDataDelegate.clear();
-
     }
 
 
