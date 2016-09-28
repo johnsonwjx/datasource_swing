@@ -37,10 +37,10 @@ public class GetInparamFieldsUtil {
             JsonObject object = new JsonObject();
             for (Element para : paras) {
                 String name = para.attributeValue("name");
-                String text = para.getText().toLowerCase();
+                String text = para.getText();
                 object.addProperty(name.toLowerCase(), text);
             }
-            object.addProperty(FIELD_NAME_PROPNAME, object.get(FIELD_NAME_PROPNAME).getAsString());
+            object.addProperty(FIELD_NAME_PROPNAME, object.get(FIELD_NAME_PROPNAME).getAsString().toLowerCase());
             BeanDto fielddto = new BeanDto(object, FIELD_NAME_PROPNAME);
             model.addRow(new Object[]{fielddto, fielddto.getValue(FIELD_DESC_PROPNAME)});
             fieldListDlg.addItem(fielddto);
