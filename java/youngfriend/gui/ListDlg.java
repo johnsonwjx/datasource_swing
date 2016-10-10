@@ -6,6 +6,7 @@
 package youngfriend.gui;
 
 import youngfriend.bean.BeanDto;
+import youngfriend.common.util.StringUtils;
 import youngfriend.utils.PubUtil;
 
 import javax.swing.DefaultListModel;
@@ -98,6 +99,9 @@ public class ListDlg extends javax.swing.JDialog {
 
     public void setSelect(String key, String value) {
         jList1.clearSelection();
+        if (StringUtils.nullOrBlank(value)) {
+            return;
+        }
         DefaultListModel model = (DefaultListModel) jList1.getModel();
         int size = model.getSize();
         if (size < 1) {

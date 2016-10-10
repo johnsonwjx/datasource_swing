@@ -1,6 +1,5 @@
 package youngfriend.main_pnl.deleagte;
 
-import com.google.common.base.Strings;
 import com.google.gson.JsonObject;
 import youngfriend.bean.BeanDto;
 import youngfriend.common.util.StringUtils;
@@ -19,15 +18,14 @@ import java.awt.event.ItemListener;
  * Created by xiong on 8/29/16.
  */
 public class BuildTreeDataDelegate {
-    //TODO codefieldBean namefieldBean 可以删除
     public static final String CODE = "codeField";
     public static final String NAME = "nameField";
 
     public static final String ROOT = "rootName";
     public static final String CODEINC = "codeInc";
+    public static final String HASPARENT = "hasParent";
+    private final JCheckBox hasParentCb;
 
-    private BeanDto codefieldBean;
-    private BeanDto namefieldBean;
     private JCheckBox tree_checkbox;
     //根目录名称
     private JTextField rootName_tf;
@@ -38,12 +36,14 @@ public class BuildTreeDataDelegate {
     //级次结构
     private JTextField codeInc_tf;
 
-    public BuildTreeDataDelegate(JCheckBox tree_checkbox, final ListDlg fieldListDlg, final JTextField rootName_tf, final JTextField codeField_tf, final JTextField nameField_tf, final JTextField codeInc_tf, final JButton codeFieldBtn, final JButton nameFieldBtn) {
+
+    public BuildTreeDataDelegate(JCheckBox tree_checkbox, final ListDlg fieldListDlg, final JTextField rootName_tf, final JTextField codeField_tf, final JTextField nameField_tf, final JTextField codeInc_tf, final JButton codeFieldBtn, final JButton nameFieldBtn, JCheckBox hasparentCb) {
         this.tree_checkbox = tree_checkbox;
         this.rootName_tf = rootName_tf;
         this.nameField_tf = nameField_tf;
         this.codeInc_tf = codeInc_tf;
         this.codeField_tf = codeField_tf;
+        this.hasParentCb = hasparentCb;
         tree_checkbox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent itemEvent) {
@@ -58,7 +58,7 @@ public class BuildTreeDataDelegate {
         codeFieldBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                fieldListDlg.setSelect(codefieldBean);
+                fieldListDlg.setSelect(InparamTableDelegateAbs.FIELD_NAME_PROPNAME, codeField_tf.getText());
                 fieldListDlg.showDlg();
                 if (!fieldListDlg.isOk()) {
                     return;
@@ -70,7 +70,7 @@ public class BuildTreeDataDelegate {
         nameFieldBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                fieldListDlg.setSelect(namefieldBean);
+                fieldListDlg.setSelect(InparamTableDelegateAbs.FIELD_NAME_PROPNAME, nameField_tf.getText());
                 fieldListDlg.showDlg();
                 if (!fieldListDlg.isOk()) {
                     return;
@@ -83,55 +83,28 @@ public class BuildTreeDataDelegate {
 
 
     private void setCodefieldBean(BeanDto codefieldBean) {
-        this.codefieldBean = codefieldBean;
         codeField_tf.setText(codefieldBean == null ? "" : String.valueOf(codefieldBean));
     }
 
     private void setNamefieldBean(BeanDto namefieldBean) {
-        this.namefieldBean = namefieldBean;
         nameField_tf.setText(namefieldBean == null ? "" : String.valueOf(namefieldBean));
     }
 
-    public boolean validate() {
-        if (tree_checkbox.isSelected()) {
-            String rootname = rootName_tf.getText();
-            if (Strings.isNullOrEmpty(rootname)) {
-                PubUtil.showMsg("请设置根目录名称");
-                rootName_tf.requestFocus();
-                return false;
-            }
-            if (codefieldBean == null) {
-                PubUtil.showMsg("请设置级次字段");
-                return false;
-            }
-            if (namefieldBean == null) {
-                PubUtil.showMsg("请设置级次名称");
-                return false;
-            }
-            String codeInc = codeInc_tf.getText();
-            if (Strings.isNullOrEmpty(codeInc)) {
-                PubUtil.showMsg("请设置级次结构");
-                codeInc_tf.requestFocus();
-                return false;
-            }
-        }
-        return true;
-    }
 
     public void clear() {
         tree_checkbox.setSelected(false);
     }
 
 
-    public void save(JsonObject inparamLevel1) {
-        if (tree_checkbox.isSelected()) {
-            String rootname = rootName_tf.getText();
-            String codeInc = codeInc_tf.getText();
-            inparamLevel1.addProperty(ROOT, rootname);
-            inparamLevel1.addProperty(CODE, codeField_tf.getText());
-            inparamLevel1.addProperty(NAME, nameField_tf.getText());
-            inparamLevel1.addProperty(CODEINC, codeInc);
-        }
+    public boolean save(JsonObject inparamLevel1) {
+        String rootname = rootName_tf.getText();
+        String codeInc = codeInc_tf.getText();
+        inparamLevel1.addProperty(ROOT, rootname);
+        inparamLevel1.addProperty(CODE, codeField_tf.getText());
+        inparamLevel1.addProperty(NAME, nameField_tf.getText());
+        inparamLevel1.addProperty(CODEINC, codeInc);
+        inparamLevel1.addProperty(HASPARENT, hasParentCb.isSelected() ? PubUtil.TRUESTR : PubUtil.FALSESTR);
+        return true;
     }
 
     public void load(JsonObject inparamLevel1) {
@@ -144,6 +117,7 @@ public class BuildTreeDataDelegate {
         rootName_tf.setText(root);
         nameField_tf.setText(name);
         codeInc_tf.setText(codeInc);
+        hasParentCb.setSelected(PubUtil.TRUESTR.equals(PubUtil.getProp(inparamLevel1, HASPARENT)));
     }
 
     public void loadBuildTreeBean(BeanDto field) {
