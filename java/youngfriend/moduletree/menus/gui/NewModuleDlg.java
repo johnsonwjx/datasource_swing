@@ -292,6 +292,7 @@ public class NewModuleDlg extends javax.swing.JDialog {
         jsonData.addProperty("tablename", tablename);
         jsonData.addProperty("servicename", service.getValue("name"));
         jsonData.add("inparam", inparamArr);
+        jsonData.addProperty("newModule",true);
         String moduleid = null;
         try {
             moduleid = ModuleServiceUtil.saveModule(null, moduleTreePnl.getProjectId(), dto.getValue("name"), dto.getValue("description"),//

@@ -29,7 +29,7 @@ import java.util.Set;
  */
 public abstract class InparamTableDelegateCommonAbs extends InparamTableDelegateAbs {
     //合计
-    public static final BeanDto[] SUMVALUES = new BeanDto[]{null, new BeanDto("合计", "sum")};
+    public static final BeanDto[] SUMVALUES = new BeanDto[]{null, new BeanDto("合计", "sum"), new BeanDto("取max", "max")};
     //固定值
     public static final BeanDto[] FIXEDVALUES = new BeanDto[]{null, new BeanDto("当前日期", "currentDate"), new BeanDto("员工ID", "userID"), new BeanDto("员工姓名", "username"),
             new BeanDto("操作用户ID", "personid"), new BeanDto("操作用户注册名", "regname"),

@@ -12,6 +12,7 @@ import youngfriend.App;
 import youngfriend.bean.BeanDto;
 import youngfriend.common.util.StringUtils;
 import youngfriend.common.util.encoding.Base64;
+import youngfriend.common.util.net.exception.ServiceInvokerException;
 import youngfriend.main_pnl.deleagte.InparamTableDelegateAbs;
 import youngfriend.main_pnl.gui.AbstractMainPnl;
 import youngfriend.main_pnl.gui.BtnModulePnl;
@@ -28,6 +29,7 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.List;
 
 import static youngfriend.App.busyDoing;
@@ -190,17 +192,28 @@ public class MainPnlFactory extends javax.swing.JPanel {
         }
         JsonObject jsonData = getInputParamObj(moduleInfoBean);
         try {
-            mainHeaderPnl.save(jsonData);
-            String modulename = moduleInfoBean.getValue("name");
-            String modulealias = mainHeaderPnl.getModuleAlias();
-            String desc = mainHeaderPnl.getDesc();
-            mainPnl.saveParam(modulename, jsonData);
-            ModuleServiceUtil.saveModule(moduleInfoBean.getValue("id"), moduleCatalogBean.getValue("projectcode"), null, desc, modulealias, jsonData.toString(), null, null);
+            save(jsonData);
             PubUtil.showMsg("保存成功");
             saveFlag = true;
         } catch (Exception e) {
             PubUtil.showMsg("保存错误" + e.getMessage());
         }
+    }
+
+    /**
+     * 导入时候 新增组件确保和 按钮保存一样参数 需要保存一遍 调用
+     *
+     * @param jsonData
+     * @throws IOException
+     * @throws ServiceInvokerException
+     */
+    private void save(JsonObject jsonData) throws IOException, ServiceInvokerException {
+        mainHeaderPnl.save(jsonData);
+        String modulename = moduleInfoBean.getValue("name");
+        String modulealias = mainHeaderPnl.getModuleAlias();
+        String desc = mainHeaderPnl.getDesc();
+        mainPnl.saveParam(modulename, jsonData);
+        ModuleServiceUtil.saveModule(moduleInfoBean.getValue("id"), moduleCatalogBean.getValue("projectcode"), null, desc, modulealias, jsonData.toString(), null, null);
     }
 
     public void loadData(final BeanDto moduleCatalogBean, final BeanDto moduleInfoBean, final boolean isversion2) {
@@ -255,10 +268,6 @@ public class MainPnlFactory extends javax.swing.JPanel {
                         throw new RuntimeException("获取服务列表为空");
                     }
                     JsonObject jsonData = getInputParamObj(moduleInfoBean);
-                    if (jsonData == null) {
-                        return;
-                    }
-
                     ModuleType moduleType = moduleTreePnl.getModuleType();
                     //getMainPnl then disinguish common
                     mainHeaderPnl.load(servicebeans, jsonData, moduleType, moduleInfoBean, isCommonModule(moduleType), moduleTreePnl.isVersion2());
@@ -269,6 +278,11 @@ public class MainPnlFactory extends javax.swing.JPanel {
                         mainPnl.tableSelect(moduleInfoBean, mainHeaderPnl, isCommonModule(moduleType), isVersion2);
                         mainPnl.loadData(jsonData);
                         mainPnlcontainer.add(mainPnl, BorderLayout.CENTER);
+                    }
+                    if ("true".equals(PubUtil.getProp(jsonData, "newModule"))) {
+                        jsonData.remove("newModule");
+                        save(jsonData);
+                        moduleTreePnl.reLoadData();
                     }
                     mainPnlcontainer.setVisible(true);
                     mainPnlcontainer.updateUI();
@@ -289,6 +303,7 @@ public class MainPnlFactory extends javax.swing.JPanel {
                         throw new RuntimeException("此组件不适合修改:callparam=" + moduleInfoBean.getValue("callparam"));
                     }
                 }
+
             }
         });
     }
